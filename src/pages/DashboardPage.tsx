@@ -36,7 +36,7 @@ export default function DashboardPage() {
       title: 'Monitoring DO', 
       desc: 'Progress DO Bahan Ajar', 
       icon: TrendingUp, 
-      path: '#', 
+      path: '/monitoring-do', 
       color: 'bg-orange-500',
       stats: '85% Selesai'
     },
@@ -44,7 +44,7 @@ export default function DashboardPage() {
       title: 'Rekap Bahan Ajar', 
       desc: 'Laporan inventaris bulanan', 
       icon: FileText, 
-      path: '#', 
+      path: '/rekap-stok', 
       color: 'bg-purple-500',
       stats: 'Apr 2024'
     },
