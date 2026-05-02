@@ -48,22 +48,6 @@ export default function DashboardPage() {
       color: 'bg-purple-500',
       stats: 'Apr 2024'
     },
-    { 
-      title: 'Histori Transaksi', 
-      desc: 'Catatan pesanan terdahulu', 
-      icon: History, 
-      path: '#', 
-      color: 'bg-rose-500',
-      stats: '458 Data'
-    },
-    { 
-      title: 'Bantuan SITTA', 
-      desc: 'Panduan penggunaan sistem', 
-      icon: AlertCircle, 
-      path: '#', 
-      color: 'bg-slate-500',
-      stats: 'FAQ'
-    }
   ];
 
   return (
