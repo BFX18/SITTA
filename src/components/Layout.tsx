@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
+  Home,
   Package, 
   Truck, 
   FileBox, 
@@ -26,6 +27,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [openMenus, setOpenMenus] = useState<string[]>(['Laporan']);
 
   useEffect(() => {
+    // Close sidebar on location change for mobile
+    setIsSidebarOpen(false);
+    
+    // Set greeting and user data
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) setGreeting('Pagi');
     else if (hour >= 12 && hour < 15) setGreeting('Siang');
@@ -36,7 +41,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (user) {
       setUserData(JSON.parse(user));
     }
-  }, []);
+  }, [location.pathname]);
 
   const toggleMenu = (title: string) => {
     setOpenMenus(prev => 
@@ -53,7 +58,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
 
   const menuItems = [
-    { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { title: 'Beranda', path: '/dashboard', icon: Home },
+    { title: 'Monitoring DO', path: '/monitoring-do', icon: LayoutDashboard },
     { title: 'Informasi Bahan Ajar', path: '/stok', icon: Package },
     { title: 'Tracking Pengiriman', path: '/tracking', icon: Truck },
     { 
@@ -154,27 +160,37 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="flex h-24 items-center justify-between px-10">
+        <header className="flex h-20 md:h-24 items-center justify-between px-4 md:px-10">
           <div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)]">Selamat {greeting}, {userData?.nama?.split(' ')[0] || 'Admin'}</h1>
-            <p className="text-sm text-[var(--text-secondary)]">{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} • SITTA</p>
+            <h1 className="text-lg md:text-2xl font-bold text-[var(--text-primary)]">Selamat {greeting}, {userData?.nama?.split(' ')[0] || 'Admin'}</h1>
+            <p className="text-[10px] md:text-sm text-[var(--text-secondary)]">{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} • SITTA</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
+            <Link
+              to="/dashboard"
+              className="p-2 md:p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-blue-500 transition-all"
+              title="Beranda"
+            >
+              <Home size={18} className="md:w-5 md:h-5" />
+            </Link>
             <button
               onClick={toggleTheme}
-              className="p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+              className="p-2 md:p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
             >
-              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+              {theme === 'light' ? <Moon size={18} className="md:w-5 md:h-5" /> : <Sun size={18} className="md:w-5 md:h-5" />}
             </button>
-            <div className="relative group cursor-pointer">
-              <div className="p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] transition-all">
-                <Menu size={20} />
-              </div>
+            <div className="lg:hidden">
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 md:p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+              >
+                <Menu size={18} className="md:w-5 md:h-5" />
+              </button>
             </div>
           </div>
         </header>
 
-        <div className="flex-1 px-10 pb-10 overflow-y-auto">
+        <div className="flex-1 px-4 md:px-10 pb-10 overflow-y-auto">
           {children}
         </div>
       </main>
@@ -209,20 +225,61 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
               <nav className="flex-1 space-y-2">
                 {menuItems.map((item) => (
-                  <Link
-                    key={item.title}
-                    to={item.path}
-                    onClick={() => setIsSidebarOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-4 rounded-xl transition-all",
-                      location.pathname === item.path 
-                        ? "bg-blue-900 text-white" 
-                        : "text-slate-600 dark:text-slate-400"
+                  <div key={item.title}>
+                    {item.subItems ? (
+                      <div className="space-y-1">
+                        <button
+                          onClick={() => toggleMenu(item.title)}
+                          className={cn(
+                            "flex items-center justify-between w-full px-4 py-4 rounded-xl text-slate-600 dark:text-slate-400 font-bold",
+                            openMenus.includes(item.title) && "text-blue-500"
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <item.icon size={22} />
+                            <span>{item.title}</span>
+                          </div>
+                          <ChevronRight size={18} className={cn("transition-transform", openMenus.includes(item.title) && "rotate-90")} />
+                        </button>
+                        <AnimatePresence>
+                          {openMenus.includes(item.title) && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="ml-10 flex flex-col gap-2 border-l border-slate-200 dark:border-slate-800 pl-4"
+                            >
+                              {item.subItems.map(sub => (
+                                <Link
+                                  key={sub.title}
+                                  to={sub.path}
+                                  className={cn(
+                                    "py-2 text-sm font-bold",
+                                    location.pathname === sub.path ? "text-blue-400" : "text-slate-500"
+                                  )}
+                                >
+                                  {sub.title}
+                                </Link>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ) : (
+                      <Link
+                        to={item.path}
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-4 rounded-xl transition-all",
+                          location.pathname === item.path 
+                            ? "bg-blue-600 text-white shadow-lg" 
+                            : "text-slate-600 dark:text-slate-400"
+                        )}
+                      >
+                        <item.icon size={22} />
+                        <span className="font-bold">{item.title}</span>
+                      </Link>
                     )}
-                  >
-                    <item.icon size={22} />
-                    <span className="font-bold">{item.title}</span>
-                  </Link>
+                  </div>
                 ))}
               </nav>
 

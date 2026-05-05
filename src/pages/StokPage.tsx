@@ -75,7 +75,7 @@ export default function StokPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-[13px]">
             <thead>
               <tr className="border-b border-[var(--border)]">
@@ -131,14 +131,17 @@ export default function StokPage() {
                           {item.stok}
                         </span>
                         {item.stok < 200 && (
-                          <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-500 text-[10px] font-bold uppercase">Menipis</span>
+                          <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-500 text-[10px] font-bold uppercase transition-transform hover:scale-105">Menipis</span>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <td className="px-6 py-4 text-right px-4">
+                      <div className="flex justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity">
                         <button 
-                          onClick={() => handleDelete(item.kodeBarang)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(item.kodeBarang);
+                          }}
                           className="p-1.5 text-[var(--text-secondary)] hover:text-red-500 transition-colors"
                         >
                           <Trash2 size={16} />
@@ -150,6 +153,59 @@ export default function StokPage() {
               </AnimatePresence>
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile List View */}
+        <div className="md:hidden divide-y divide-[var(--border)]">
+          {filteredData.map((item) => (
+            <div 
+              key={item.kodeBarang}
+              onClick={() => setSelectedItem(item)}
+              className="p-4 flex gap-4 hover:bg-white/5 active:bg-white/10 transition-colors"
+            >
+              <div className="w-16 h-20 bg-slate-200 dark:bg-slate-800 rounded-lg overflow-hidden border border-[var(--border)] shrink-0 shadow-sm">
+                <img 
+                  src={item.cover} 
+                  alt={item.namaBarang}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://placehold.co/120x160/1e293b/f8fafc?text=Modul';
+                  }}
+                />
+              </div>
+              <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                <div>
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="font-mono text-blue-500 font-bold text-xs">{item.kodeBarang}</span>
+                    <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-500 rounded font-bold text-[9px] uppercase whitespace-nowrap">Ed. {item.edisi}</span>
+                  </div>
+                  <h4 className="text-[13px] font-bold text-[var(--text-primary)] truncate mt-0.5 leading-tight">{item.namaBarang}</h4>
+                  <p className="text-[9px] text-[var(--text-secondary)] uppercase mt-0.5 tracking-tight">{item.kodeLokasi} • {item.jenisBarang}</p>
+                </div>
+                <div className="flex justify-between items-center mt-2 pt-2 border-t border-[var(--border)]/50">
+                  <div className="flex items-center gap-1.5">
+                    <span className={cn(
+                      "text-[12px] font-black",
+                      item.stok < 200 ? "text-red-500" : "text-[var(--text-primary)]"
+                    )}>
+                      {item.stok}
+                    </span>
+                    <span className="text-[9px] text-[var(--text-secondary)] font-bold uppercase tracking-wider">Tersedia</span>
+                  </div>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(item.kodeBarang);
+                    }}
+                    className="p-1.5 text-red-500/50 hover:text-red-500 active:scale-90 transition-all"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

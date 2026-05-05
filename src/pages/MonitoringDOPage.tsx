@@ -52,11 +52,13 @@ export default function MonitoringDOPage() {
       </div>
 
       <div className="bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border)] overflow-hidden">
-        <div className="p-6 border-b border-[var(--border)] flex justify-between items-center">
-            <h3 className="font-bold text-[var(--text-primary)]">Daftar Delivery Order Aktif</h3>
-            <button className="text-xs font-bold text-blue-500 hover:underline">Lihat Semua</button>
+        <div className="p-4 md:p-6 border-b border-[var(--border)] flex justify-between items-center bg-white/5">
+            <h3 className="text-sm md:text-base font-bold text-[var(--text-primary)]">Daftar Delivery Order Aktif</h3>
+            <button className="text-[10px] md:text-xs font-bold text-blue-500 hover:bg-blue-500/10 px-3 py-1.5 rounded-lg transition-colors">Lihat Semua</button>
         </div>
-        <div className="overflow-x-auto">
+        
+        {/* Desktop View (Large Screens only) */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-[13px]">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--bg-primary)]/50">
@@ -64,11 +66,11 @@ export default function MonitoringDOPage() {
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Mahasiswa</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Progress</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Status</th>
-                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Estimasi Tiba</th>
+                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold text-right">Estimasi Tiba</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {doList.map((item, idx) => (
+              {doList.map((item) => (
                 <tr key={item.no} className="hover:bg-white/5 transition-colors group">
                   <td className="px-6 py-4">
                     <span className="font-mono text-blue-500 font-bold">{item.no}</span>
@@ -93,19 +95,77 @@ export default function MonitoringDOPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span className={cn(
-                        "px-2 py-1 rounded text-[10px] font-bold uppercase",
+                        "px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider",
                         item.status === 'Diterima' ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
                     )}>
                         {item.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className="text-[var(--text-secondary)]">{item.date}</span>
+                  <td className="px-6 py-4 text-right">
+                    <span className="text-[var(--text-secondary)] font-medium">{item.date}</span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Tablet & Mobile View (Grid for tablet, List for mobile) */}
+        <div className="lg:hidden p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {doList.map((item) => (
+              <div 
+                key={item.no} 
+                className="p-5 rounded-2xl bg-[var(--bg-primary)]/40 border border-[var(--border)] space-y-4 hover:border-blue-500/50 transition-all active:scale-[0.98]"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        <span className="font-mono text-blue-500 font-bold text-[10px] tracking-tight">{item.no}</span>
+                    </div>
+                    <h4 className="text-sm font-bold text-[var(--text-primary)]">{item.mahasiswa}</h4>
+                  </div>
+                  <span className={cn(
+                      "px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest",
+                      item.status === 'Diterima' ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
+                  )}>
+                      {item.status}
+                  </span>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-[10px]">
+                    <span className="text-[var(--text-secondary)] font-bold uppercase tracking-tighter">Progress Logistik</span>
+                    <span className={cn(
+                        "font-black",
+                        item.progress === 100 ? "text-emerald-500" : "text-blue-500"
+                    )}>{item.progress}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-[var(--border)] rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${item.progress}%` }}
+                      className={cn(
+                        "h-full rounded-full shadow-[0_0_10px_rgba(59,130,246,0.3)]",
+                        item.progress === 100 ? "bg-emerald-500" : "bg-blue-500"
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-[var(--border)]/50">
+                  <div className="flex items-center gap-2 text-[10px] text-[var(--text-secondary)]">
+                    <Clock size={12} className="text-blue-500" />
+                    <span className="font-medium italic">Estimasi: {item.date}</span>
+                  </div>
+                  <button className="p-1.5 hover:bg-blue-500/10 rounded-lg transition-colors">
+                    <TrendingUp size={14} className="text-[var(--text-secondary)]" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
