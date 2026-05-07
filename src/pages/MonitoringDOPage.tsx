@@ -5,10 +5,10 @@ import { cn } from '../lib/utils';
 
 export default function MonitoringDOPage() {
   const doList = [
-    { no: 'DO/2024/0001', mahasiswa: 'Agus Pranoto', progress: 100, status: 'Diterima', date: '2025-08-26' },
-    { no: 'DO/2024/0002', mahasiswa: 'Rina Wulandari', progress: 65, status: 'Dalam Perjalanan', date: '2025-08-25' },
-    { no: 'DO/2024/0003', mahasiswa: 'Budi Santoso', progress: 40, status: 'Transit', date: '2025-08-27' },
-    { no: 'DO/2024/0004', mahasiswa: 'Siti Marlina', progress: 15, status: 'Diproses', date: '2025-08-28' },
+    { no: 'DO/2024/0001', mahasiswa: 'Agus Pranoto', progress: 100, status: 'Diterima', date: '2025-08-26', paket: '0UPBJJBDG' },
+    { no: 'DO/2024/0002', mahasiswa: 'Rina Wulandari', progress: 65, status: 'Dalam Perjalanan', date: '2025-08-25', paket: '0JKT01' },
+    { no: 'DO/2024/0003', mahasiswa: 'Budi Santoso', progress: 40, status: 'Transit', date: '2025-08-27', paket: '0MLG01' },
+    { no: 'DO/2024/0004', mahasiswa: 'Siti Marlina', progress: 15, status: 'Diproses', date: '2025-08-28', paket: '0SBY02' },
   ];
 
   return (
@@ -64,6 +64,7 @@ export default function MonitoringDOPage() {
               <tr className="border-b border-[var(--border)] bg-[var(--bg-primary)]/50">
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Nomor DO</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Mahasiswa</th>
+                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Paket</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Progress</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Status</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold text-right">Estimasi Tiba</th>
@@ -77,6 +78,9 @@ export default function MonitoringDOPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span className="font-medium text-[var(--text-primary)]">{item.mahasiswa}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="px-2 py-0.5 bg-blue-500/10 text-blue-500 rounded font-bold text-[10px]">{item.paket}</span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -123,6 +127,7 @@ export default function MonitoringDOPage() {
                     <div className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                         <span className="font-mono text-blue-500 font-bold text-[10px] tracking-tight">{item.no}</span>
+                        <span className="bg-slate-200 dark:bg-slate-800 text-[8px] px-1 rounded text-[var(--text-secondary)] font-bold">{item.paket}</span>
                     </div>
                     <h4 className="text-sm font-bold text-[var(--text-primary)]">{item.mahasiswa}</h4>
                   </div>

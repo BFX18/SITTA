@@ -67,11 +67,14 @@ export default function TrackingPage() {
                       <p className="text-xs text-[var(--text-secondary)]">Nomor DO: {searchResult.nomorDO}</p>
                     </div>
                   </div>
-                  <div className="md:text-right">
+                  <div className="md:text-right flex flex-col gap-2">
                     <div className="p-4 bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] h-full flex flex-col justify-center">
-                      <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-1">Detail Ekspedisi</p>
+                      <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-1">Paket {searchResult.paket}</p>
                       <h3 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">{searchResult.ekspedisi}</h3>
-                      <p className="text-xs text-blue-500 font-bold">Total: {searchResult.total}</p>
+                      <div className="flex flex-col md:items-end mt-1">
+                        <p className="text-[10px] text-[var(--text-secondary)] font-medium">Dikirim: {searchResult.tanggalKirim}</p>
+                        <p className="text-xs text-blue-500 font-bold">Total: {searchResult.total}</p>
+                      </div>
                     </div>
                   </div>
                 </div>

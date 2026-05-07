@@ -267,7 +267,7 @@ export default function StokPage() {
                     </div>
                     <div className="space-y-4">
                       <div>
-                        <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest italic">Lokasi Gudang</p>
+                        <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest italic">Paket / Lokasi</p>
                         <p className="text-sm font-bold text-[var(--text-primary)]">{selectedItem.kodeLokasi}</p>
                       </div>
                       <div>
@@ -356,16 +356,16 @@ export default function StokPage() {
                       className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl outline-none text-[var(--text-primary)]"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest">Kode Lokasi</label>
-                    <input 
-                      required
-                      value={newLokasi}
-                      onChange={(e) => setNewLokasi(e.target.value.toUpperCase())}
-                      placeholder="0TMP01"
-                      className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl outline-none text-[var(--text-primary)]"
-                    />
-                  </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest">Paket / Lokasi</label>
+                      <input 
+                        required
+                        value={newLokasi}
+                        onChange={(e) => setNewLokasi(e.target.value.toUpperCase())}
+                        placeholder="0TMP01"
+                        className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl outline-none text-[var(--text-primary)]"
+                      />
+                    </div>
                 </div>
 
                 <div className="flex gap-4 pt-4">
