@@ -1,4 +1,4 @@
-import { BahanAjar, TrackingData, User } from './types';
+import { BahanAjar, TrackingData, User, TransactionHistory } from './types';
 import { COVERS } from './assets';
 
 export const dataPengguna: User[] = [
@@ -152,3 +152,56 @@ export const dataTracking: Record<string, TrackingData> = {
     ]
   }
 };
+
+export const dataRiwayatTransaksi: TransactionHistory[] = [
+  {
+    id: "TRX-2025-001",
+    tanggal: "2025-08-26 09:15",
+    item: "Pengantar Ilmu Komunikasi (SKOM4101)",
+    jenis: "Keluar",
+    jumlah: 50,
+    petugas: "Siti Marlina",
+    keterangan: "Pengiriman ke UPBJJ Jakarta",
+    paket: "0JKT01"
+  },
+  {
+    id: "TRX-2025-002",
+    tanggal: "2025-08-25 14:30",
+    item: "Manajemen Keuangan (EKMA4213)",
+    jenis: "Keluar",
+    jumlah: 120,
+    petugas: "Doni Setiawan",
+    keterangan: "Pengiriman Masif Semester 2025.1",
+    paket: "0JKT01"
+  },
+  {
+    id: "TRX-2025-003",
+    tanggal: "2025-08-24 11:00",
+    item: "Kepemimpinan (ADPU4334)",
+    jenis: "Masuk",
+    jumlah: 500,
+    petugas: "Admin Pusat",
+    keterangan: "Penerimaan dari Percetakan",
+    paket: "0SBY02"
+  },
+  {
+    id: "TRX-2025-004",
+    tanggal: "2025-08-24 10:45",
+    item: "Mikrobiologi (BIOL4223)",
+    jenis: "Keluar",
+    jumlah: 15,
+    petugas: "Siti Marlina",
+    keterangan: "Permintaan Khusus Mahasiswa",
+    paket: "0MLG01"
+  },
+  {
+    id: "TRX-2025-005",
+    tanggal: "2025-08-23 16:20",
+    item: "Perkembangan Anak Usia Dini (PAUD4306)",
+    jenis: "Masuk",
+    jumlah: 300,
+    petugas: "Admin Pusat",
+    keterangan: "Restock Gudang Pusat",
+    paket: "0UPBJJBDG"
+  }
+];

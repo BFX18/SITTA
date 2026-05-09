@@ -22,6 +22,17 @@ export interface Perjalanan {
   keterangan: string;
 }
 
+export interface TransactionHistory {
+  id: string;
+  tanggal: string;
+  item: string;
+  jenis: 'Masuk' | 'Keluar';
+  jumlah: number;
+  petugas: string;
+  keterangan: string;
+  paket: string;
+}
+
 export interface TrackingData {
   nomorDO: string;
   nama: string;

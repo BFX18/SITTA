@@ -11,7 +11,8 @@ import {
   X,
   Sun,
   Moon,
-  ChevronRight
+  ChevronRight,
+  History
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { cn } from '../lib/utils';
@@ -62,12 +63,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { title: 'Monitoring DO', path: '/monitoring-do', icon: LayoutDashboard },
     { title: 'Informasi Bahan Ajar', path: '/stok', icon: Package },
     { title: 'Tracking Pengiriman', path: '/tracking', icon: Truck },
+    { title: 'Riwayat Transaksi', path: '/riwayat-transaksi', icon: History },
     { 
       title: 'Laporan', 
       path: '#', 
       icon: FileBox, 
       subItems: [
         { title: 'Monitoring DO', path: '/monitoring-do' },
+        { title: 'Riwayat Transaksi', path: '/riwayat-transaksi' },
         { title: 'Rekap Bahan Ajar', path: '/rekap-stok' }
       ] 
     },

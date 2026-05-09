@@ -13,6 +13,7 @@ import TrackingPage from './pages/TrackingPage';
 import StokPage from './pages/StokPage';
 import MonitoringDOPage from './pages/MonitoringDOPage';
 import RekapBahanAjarPage from './pages/RekapBahanAjarPage';
+import RiwayatTransaksiPage from './pages/RiwayatTransaksiPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -59,6 +60,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <MonitoringDOPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/riwayat-transaksi"
+            element={
+              <ProtectedRoute>
+                <RiwayatTransaksiPage />
               </ProtectedRoute>
             }
           />

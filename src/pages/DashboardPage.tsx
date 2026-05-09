@@ -6,15 +6,18 @@ import {
   Truck, 
   FileText, 
   History, 
-  BarChart3, 
-  ClipboardList,
+  TrendingUp, 
+  AlertCircle,
   ChevronRight,
-  TrendingUp,
-  AlertCircle
+  ArrowDownLeft,
+  ArrowUpRight
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { dataRiwayatTransaksi } from '../data';
 
 export default function DashboardPage() {
+  const latestTransactions = dataRiwayatTransaksi.slice(0, 4);
+
   const cards = [
     { 
       title: 'Informasi Bahan Ajar', 
@@ -48,6 +51,22 @@ export default function DashboardPage() {
       color: 'bg-purple-500',
       stats: 'Apr 2024'
     },
+    { 
+      title: 'Histori Transaksi', 
+      desc: 'Catatan pesanan terdahulu', 
+      icon: History, 
+      path: '/riwayat-transaksi', 
+      color: 'bg-rose-500',
+      stats: '458 Data'
+    },
+    { 
+      title: 'Bantuan SITTA', 
+      desc: 'Panduan penggunaan sistem', 
+      icon: AlertCircle, 
+      path: '#', 
+      color: 'bg-slate-500',
+      stats: 'FAQ'
+    }
   ];
 
   return (
@@ -90,15 +109,64 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-10 text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden border border-blue-500/20">
-        <div className="relative z-10">
-          <h2 className="text-4xl font-black italic mb-3 tracking-tighter uppercase">SITTA V2</h2>
-          <p className="text-blue-100 max-w-sm font-medium leading-relaxed">Sistem Informasi Transaksi Tahunan Universitas Terbuka. Digitalisasi logistik Bahan Ajar untuk Indonesia.</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-[var(--bg-secondary)] rounded-3xl border border-[var(--border)] overflow-hidden">
+          <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
+            <h3 className="font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <History size={18} className="text-blue-500" />
+              Aktivitas Terakhir
+            </h3>
+            <Link to="/riwayat-transaksi" className="text-[10px] font-black uppercase text-blue-500 hover:underline">Lihat Semua</Link>
+          </div>
+          <div className="divide-y divide-[var(--border)]">
+            {latestTransactions.map((tx) => (
+              <div key={tx.id} className="p-4 hover:bg-[var(--bg-primary)]/50 transition-colors flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className={cn(
+                    "p-2 rounded-lg",
+                    tx.jenis === 'Masuk' ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-500"
+                  )}>
+                    {tx.jenis === 'Masuk' ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-[var(--text-primary)] leading-tight mb-0.5">{tx.item}</h4>
+                    <p className="text-[10px] text-[var(--text-secondary)] font-medium">{tx.tanggal} • {tx.petugas}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className={cn(
+                    "text-sm font-black",
+                    tx.jenis === 'Masuk' ? "text-emerald-500" : "text-orange-500"
+                  )}>
+                    {tx.jenis === 'Masuk' ? '+' : '-'}{tx.jumlah}
+                  </p>
+                  <p className="text-[8px] font-bold text-[var(--text-secondary)] uppercase bg-[var(--border)] px-1 rounded inline-block">{tx.paket}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        
-        <Link to="/tracking" className="relative z-10 bg-white text-blue-600 px-8 py-4 rounded-xl font-black uppercase tracking-tight shadow-xl transition-transform hover:scale-105 active:scale-95">
-          Lacak Pengiriman Sekarang
-        </Link>
+
+        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden flex flex-col justify-between">
+          <div className="relative z-10">
+            <h2 className="text-3xl font-black italic mb-2 tracking-tighter uppercase">SITTA V2</h2>
+            <p className="text-blue-100 text-xs font-medium leading-relaxed mb-6">Sistem Informasi Transaksi Tahunan Universitas Terbuka. Digitalisasi logistik untuk Indonesia.</p>
+            
+            <div className="space-y-3">
+              <div className="bg-white/10 backdrop-blur-md p-3 rounded-xl border border-white/10">
+                <p className="text-[10px] font-bold opacity-60 uppercase mb-1">Target Hari Ini</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-black">150 Paket</span>
+                  <span className="text-[10px] bg-emerald-500 px-1.5 py-0.5 rounded-full font-bold">90%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <Link to="/tracking" className="relative z-10 bg-white text-blue-600 w-full py-3 rounded-xl font-black uppercase text-xs text-center shadow-xl transition-all hover:bg-blue-50 active:scale-[0.98] mt-6">
+            Lacak Pengiriman
+          </Link>
+        </div>
       </div>
     </div>
   );
