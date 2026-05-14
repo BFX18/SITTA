@@ -170,7 +170,6 @@ export const dataBahanAjar: BahanAjar[] = [
     cover: COVERS.KEPEMIMPINAN
   },
   {
-    kodeLokasi: "0TMP01",
     kodeBarang: "SKOM4101",
     namaBarang: "Pengantar Ilmu Komunikasi",
     jenisBarang: "BMP",
@@ -181,10 +180,10 @@ export const dataBahanAjar: BahanAjar[] = [
     safety: 100,
     harga: 45000,
     catatanHTML: "Stok baru diterima dari percetakan.",
+    kodeLokasi: "R1-A5",
     cover: COVERS.PENGANTAR_KOMUNIKASI
   },
   {
-    kodeLokasi: "0JKT01",
     kodeBarang: "EKMA4213",
     namaBarang: "Manajemen Keuangan",
     jenisBarang: "BMP",
@@ -195,10 +194,10 @@ export const dataBahanAjar: BahanAjar[] = [
     safety: 100,
     harga: 55000,
     catatanHTML: "Perlu segera re-order.",
+    kodeLokasi: "R1-A7",
     cover: COVERS.MANAJEMEN_KEUANGAN
   },
   {
-    kodeLokasi: "0SBY02",
     kodeBarang: "ADPU4334",
     namaBarang: "Kepemimpinan",
     jenisBarang: "BMP",
@@ -209,10 +208,10 @@ export const dataBahanAjar: BahanAjar[] = [
     safety: 50,
     harga: 40000,
     catatanHTML: "Stok kosong, dalam proses pengiriman.",
+    kodeLokasi: "R1-A2",
     cover: COVERS.KEPEMIMPINAN
   },
   {
-    kodeLokasi: "0MLG01",
     kodeBarang: "BIOL4223",
     namaBarang: "Mikrobiologi",
     jenisBarang: "BMP",
@@ -223,10 +222,10 @@ export const dataBahanAjar: BahanAjar[] = [
     safety: 40,
     harga: 65000,
     catatanHTML: "Stok aman.",
+    kodeLokasi: "R1-A9",
     cover: COVERS.MIKROBIOLOGI
   },
   {
-    kodeLokasi: "0UPBJJBDG",
     kodeBarang: "PAUD4306",
     namaBarang: "Perkembangan Anak Usia Dini",
     jenisBarang: "BMP",
@@ -237,6 +236,7 @@ export const dataBahanAjar: BahanAjar[] = [
     safety: 30,
     harga: 35000,
     catatanHTML: "-",
+    kodeLokasi: "R1-A1",
     cover: COVERS.PERKEMBANGAN_ANAK
   }
 ];
