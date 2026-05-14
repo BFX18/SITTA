@@ -56,8 +56,22 @@ export default function TrackingPage() {
 
   const generateDONumber = () => {
     const year = new Date().getFullYear();
-    const count = Object.keys(dataTracking).length + 1;
-    return `DO${year}-${String(count).padStart(3, '0')}`;
+    // Find all DO numbers for the current year
+    const existingDOsForYear = Object.keys(dataTracking).filter(key => key.startsWith(`DO${year}-`));
+    
+    let maxSequence = 0;
+    existingDOsForYear.forEach(key => {
+      const parts = key.split('-');
+      if (parts.length === 2) {
+        const seq = parseInt(parts[1]);
+        if (!isNaN(seq) && seq > maxSequence) {
+          maxSequence = seq;
+        }
+      }
+    });
+
+    const sequence = maxSequence + 1;
+    return `DO${year}-${String(sequence).padStart(3, '0')}`;
   };
 
   const handleAddDO = (e: React.FormEvent) => {
@@ -79,7 +93,7 @@ export default function TrackingPage() {
       total: selectedPaket?.harga || 0,
       perjalanan: [
         {
-          waktu: new Date().toLocaleString(),
+          waktu: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
           keterangan: "DO Berhasil Dibuat. Menunggu penjemputan kurir."
         }
       ]
@@ -89,7 +103,6 @@ export default function TrackingPage() {
     setSearchQuery(newDO);
     setIsAddingMode(false);
     resetForm();
-    alert(`DO Berhasil dibuat: ${newDO}`);
     
     // Auto show result
     setSearchResult(newEntry);
@@ -147,6 +160,73 @@ export default function TrackingPage() {
         </button>
       </form>
 
+      {/* DO List Table (Visible when no search result) */}
+      {!searchResult && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-[var(--bg-secondary)] rounded-[32px] border border-[var(--border)] overflow-hidden shadow-xl"
+        >
+          <div className="p-6 md:p-8 border-b border-[var(--border)] flex justify-between items-center bg-[var(--bg-primary)]/30">
+            <div>
+              <h3 className="text-lg font-black uppercase tracking-tighter text-[var(--text-primary)]">Daftar Delivery Order</h3>
+              <p className="text-xs text-[var(--text-secondary)]">Total {Object.keys(dataTracking).length} pengiriman tercatat</p>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] bg-[var(--bg-primary)]/50">
+                  <th className="px-8 py-4">Nomor DO</th>
+                  <th className="px-8 py-4">NIM / Nama</th>
+                  <th className="px-8 py-4">Paket</th>
+                  <th className="px-8 py-4">Status</th>
+                  <th className="px-8 py-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {(Object.values(dataTracking) as TrackingData[]).reverse().map((doItem) => (
+                  <tr key={doItem.nomorDO} className="hover:bg-blue-500/5 transition-colors">
+                    <td className="px-8 py-5">
+                      <span className="font-mono font-black text-blue-500">{doItem.nomorDO}</span>
+                    </td>
+                    <td className="px-8 py-5">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-[var(--text-primary)]">{doItem.nama}</span>
+                        <span className="text-[10px] font-medium text-[var(--text-secondary)]">{doItem.nim}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5">
+                      <span className="text-[10px] font-black bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-[var(--text-secondary)]">{doItem.paket}</span>
+                    </td>
+                    <td className="px-8 py-5">
+                      <span className={cn(
+                        "text-[10px] font-black px-2 py-1 rounded-lg",
+                        doItem.status === "Selesai" ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
+                      )}>
+                        {doItem.status}
+                      </span>
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <button 
+                        onClick={() => {
+                          setSearchQuery(doItem.nomorDO);
+                          setSearchResult(doItem);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className="p-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all"
+                      >
+                        <ChevronRight size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      )}
+
       {/* Search Results */}
       <AnimatePresence mode="wait">
         {searchResult ? (
@@ -158,6 +238,13 @@ export default function TrackingPage() {
           >
             {/* Package Info Card */}
             <div className="lg:col-span-1 space-y-6">
+              <button 
+                onClick={() => { setSearchResult(null); setSearchQuery(''); }}
+                className="flex items-center gap-2 text-sm font-bold text-blue-500 hover:text-blue-600 transition-colors mb-2"
+              >
+                <ChevronRight size={18} className="rotate-180" />
+                Kembali ke Daftar
+              </button>
               <div className="bg-[var(--bg-secondary)] rounded-[40px] p-8 border border-[var(--border)] shadow-xl overflow-hidden relative group">
                 <div className="absolute top-0 right-0 p-12 bg-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-500" />
                 
@@ -357,8 +444,12 @@ export default function TrackingPage() {
                         onChange={(e) => setFormData({...formData, paket: e.target.value})}
                         className="w-full pl-12 pr-6 py-4 bg-[var(--bg-primary)] border border-[var(--border)] rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all appearance-none font-bold"
                       >
-                        <option value="">Pilih Program Studi</option>
-                        {paketList.map(p => <option key={p.kode} value={p.kode}>{p.nama}</option>)}
+                        <option value="">Pilih Paket...</option>
+                        {paketList.map(p => (
+                          <option key={p.kode} value={p.kode}>
+                            {p.kode} - {p.nama}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -373,14 +464,25 @@ export default function TrackingPage() {
                         className="p-6 bg-blue-500/5 border border-blue-500/20 rounded-[28px] space-y-3"
                       >
                         <div className="flex justify-between items-center pb-2 border-b border-blue-500/10">
-                          <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Detail Modul</span>
-                          <span className="text-sm font-black text-blue-600">Rp {selectedPaket.harga.toLocaleString('id-ID')}</span>
+                          <div>
+                            <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest block">Detail Isi Paket</span>
+                            <span className="text-[13px] font-bold text-[var(--text-primary)]">{selectedPaket.nama}</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Total Harga</span>
+                            <span className="text-sm font-black text-emerald-600">Rp {selectedPaket.harga.toLocaleString('id-ID')}</span>
+                          </div>
                         </div>
-                        <ul className="space-y-2">
+                        <ul className="grid grid-cols-1 gap-2">
                           {selectedPaket.items.map(item => (
-                            <li key={item.kode} className="flex flex-col">
-                              <span className="text-[9px] font-black text-blue-400 font-mono">{item.kode}</span>
-                              <span className="text-xs font-bold text-slate-600 leading-tight">{item.nama}</span>
+                            <li key={item.kode} className="flex items-center gap-2 p-2 bg-white/50 dark:bg-black/20 rounded-xl border border-blue-500/5">
+                              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 font-mono text-[10px] font-bold">
+                                {item.kode.slice(0, 2)}
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-[8px] font-black text-blue-400 font-mono leading-none mb-0.5">{item.kode}</span>
+                                <span className="text-[11px] font-bold text-slate-600 leading-tight">{item.nama}</span>
+                              </div>
                             </li>
                           ))}
                         </ul>

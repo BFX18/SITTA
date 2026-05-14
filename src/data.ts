@@ -242,61 +242,67 @@ export const dataBahanAjar: BahanAjar[] = [
 ];
 
 export const dataTracking: Record<string, TrackingData> = {
-  "DO2025-0001": {
-    nomorDO: "DO2025-0001",
-    nim: "123456789",
+  "DO2026-001": {
+    nomorDO: "DO2026-001",
+    nim: "042345678",
+    nama: "Agus Pranoto",
+    status: "Selesai",
+    ekspedisi: "JNE Express",
+    tanggalKirim: "2026-05-13",
+    paket: "PKT-02",
+    total: 300000,
+    perjalanan:[
+      {
+        waktu: "2026-05-13 09:00:00",
+        keterangan: "Penerimaan di Loket: TANGERANG SELATAN"
+      },
+      {
+        waktu: "2026-05-14 20:00:00",
+        keterangan: "Selesai Antar. Penerima: Agus Pranoto"
+      }
+    ]
+  },
+  "DO2026-002": {
+    nomorDO: "DO2026-002",
+    nim: "041234567",
     nama: "Rina Wulandari",
     status: "Dalam Perjalanan",
-    ekspedisi: "JNE",
-    tanggalKirim: "2025-08-25",
-    paket: "PAKET-UT-001",
-    total: 120000,
+    ekspedisi: "JNE Regular",
+    tanggalKirim: "2026-05-14",
+    paket: "PKT-01",
+    total: 250000,
     perjalanan: [
       { waktu: "2025-08-25 10:12:20", keterangan: "Penerimaan di Loket: TANGSEL" },
       { waktu: "2025-08-25 14:07:56", keterangan: "Tiba di Hub: JAKSEL" },
       { waktu: "2025-08-26 08:44:01", keterangan: "Diteruskan ke Kantor Tujuan" }
     ]
   },
-  "DO2025-001": {
-    nomorDO: "DO2025-001",
-    nim: "041234567",
-    nama: "Rina Wulandari",
-    status: "Dalam Perjalanan",
-    ekspedisi: "JNE Regular",
-    tanggalKirim: "2025-05-14",
-    paket: "PKT-01",
-    total: 250000,
-    perjalanan:[
-      {
-        waktu: "2025-05-14 10:12:20",
-        keterangan: "Penerimaan di Loket: TANGERANG SELATAN. Pengirim: Universitas Terbuka"
-      },
-      {
-        waktu: "2025-05-14 14:07:56",
-        keterangan: "Tiba di Hub: TANGERANG SELATAN"
-      }
+  "DO2026-003": {
+    nomorDO: "DO2026-003",
+    nim: "044567890",
+    nama: "Doni Setiawan",
+    status: "Menunggu Penjemputan",
+    ekspedisi: "JNE Express",
+    tanggalKirim: "2026-05-14",
+    paket: "PAKET-UT-001",
+    total: 120000,
+    perjalanan: [
+      { waktu: "2026-05-14 09:15:00", keterangan: "Permintaan Penjemputan diajukan ke JNE." }
     ]
   },
-  "DO2025-002": {
-    nomorDO: "DO2025-002",
-    nim: "042345678",
-    nama: "Agus Pranoto",
-    status: "Selesai",
-    ekspedisi: "JNE Express",
-    tanggalKirim: "2025-05-13",
-    paket: "PKT-02",
-    total: 300000,
-    perjalanan:[
-      {
-        waktu: "2025-05-13 09:00:00",
-        keterangan: "Penerimaan di Loket: TANGERANG SELATAN"
-      },
-      {
-        waktu: "2025-05-14 20:00:00",
-        keterangan: "Selesai Antar. Penerima: Agus Pranoto"
-      }
+  "DO2026-004": {
+    nomorDO: "DO2026-004",
+    nim: "043456789",
+    nama: "Siti Marlina",
+    status: "Proses Packing",
+    ekspedisi: "JNE Regular",
+    tanggalKirim: "2026-05-14",
+    paket: "PKT-03",
+    total: 280000,
+    perjalanan: [
+      { waktu: "2026-05-14 08:30:00", keterangan: "DO Berhasil Dibuat. Menunggu penjemputan kurir." }
     ]
-  }
+  },
 };
 
 export const dataRiwayatTransaksi: TransactionHistory[] = [
@@ -308,7 +314,8 @@ export const dataRiwayatTransaksi: TransactionHistory[] = [
     jumlah: 50,
     petugas: "Siti Marlina",
     keterangan: "Pengiriman ke UPBJJ Jakarta",
-    paket: "0JKT01"
+    paket: "0JKT01",
+    catatanHTML: "<em>Prioritas Utama</em>"
   },
   {
     id: "TRX-2025-002",
@@ -338,7 +345,8 @@ export const dataRiwayatTransaksi: TransactionHistory[] = [
     jumlah: 15,
     petugas: "Siti Marlina",
     keterangan: "Permintaan Khusus Mahasiswa",
-    paket: "0MLG01"
+    paket: "0MLG01",
+    catatanHTML: "<strong>Urgent</strong>"
   },
   {
     id: "TRX-2025-005",

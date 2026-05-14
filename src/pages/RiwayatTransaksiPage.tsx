@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   History, 
   Search, 
@@ -9,21 +9,31 @@ import {
   ArrowDownLeft,
   Calendar,
   User as UserIcon,
-  Tag
+  Tag,
+  X
 } from 'lucide-react';
-import { dataRiwayatTransaksi } from '../data';
+import { dataRiwayatTransaksi, dataBahanAjar, kategoriList, upbjjList } from '../data';
 import { cn } from '../lib/utils';
 
 export default function RiwayatTransaksiPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterJenis, setFilterJenis] = useState<'Semua' | 'Masuk' | 'Keluar'>('Semua');
+  const [filterUPBJJ, setFilterUPBJJ] = useState('');
+  const [filterKategori, setFilterKategori] = useState('');
+  const [selectedTransaction, setSelectedTransaction] = useState<any | null>(null);
 
   const filteredData = dataRiwayatTransaksi.filter(item => {
     const matchesSearch = item.item.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.petugas.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesJenis = filterJenis === 'Semua' || item.jenis === filterJenis;
-    return matchesSearch && matchesJenis;
+    
+    // Find item data for category and region filtering
+    const itemData = dataBahanAjar.find(b => b.namaBarang === item.item);
+    const matchesUPBJJ = !filterUPBJJ || (itemData && itemData.upbjj === filterUPBJJ);
+    const matchesKategori = !filterKategori || (itemData && itemData.kategori === filterKategori);
+
+    return matchesSearch && matchesJenis && matchesUPBJJ && matchesKategori;
   });
 
   return (
@@ -39,7 +49,7 @@ export default function RiwayatTransaksiPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="md:col-span-2 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" size={18} />
           <input 
@@ -50,13 +60,32 @@ export default function RiwayatTransaksiPage() {
             className="w-full pl-12 pr-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl outline-none focus:border-blue-500 transition-colors text-sm text-[var(--text-primary)]"
           />
         </div>
+        <select
+          value={filterUPBJJ}
+          onChange={(e) => { setFilterUPBJJ(e.target.value); setFilterKategori(''); }}
+          className="px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl text-sm focus:border-blue-500 outline-none text-[var(--text-primary)]"
+        >
+          <option value="">Semua UT-Daerah</option>
+          {upbjjList.map(u => <option key={u.kode} value={u.nama}>{u.nama}</option>)}
+        </select>
+        <select
+          value={filterKategori}
+          onChange={(e) => setFilterKategori(e.target.value)}
+          className="px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl text-sm focus:border-blue-500 outline-none text-[var(--text-primary)]"
+        >
+          <option value="">Semua Kategori</option>
+          {(filterUPBJJ 
+            ? Array.from(new Set(dataBahanAjar.filter(b => b.upbjj === filterUPBJJ).map(b => b.kategori))).sort()
+            : kategoriList
+          ).map(k => <option key={k} value={k}>{k}</option>)}
+        </select>
         <div className="flex bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-1">
           {(['Semua', 'Masuk', 'Keluar'] as const).map((jenis) => (
             <button
               key={jenis}
               onClick={() => setFilterJenis(jenis)}
               className={cn(
-                "flex-1 py-2 text-xs font-bold rounded-xl transition-all",
+                "flex-1 py-2 text-[10px] font-bold rounded-xl transition-all",
                 filterJenis === jenis 
                   ? "bg-blue-500 text-white shadow-md" 
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -74,11 +103,11 @@ export default function RiwayatTransaksiPage() {
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--bg-primary)]/50">
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">ID Transaksi</th>
-                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Tanggal & Waktu</th>
+                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold hidden md:table-cell">Tanggal & Waktu</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Item / Bahan Ajar</th>
-                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Jenis</th>
+                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold hidden sm:table-cell">Jenis</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Jumlah</th>
-                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Keterangan</th>
+                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold hidden lg:table-cell">Keterangan</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -89,12 +118,13 @@ export default function RiwayatTransaksiPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
                     key={item.id} 
-                    className="hover:bg-white/5 transition-colors group"
+                    onClick={() => setSelectedTransaction(item)}
+                    className="hover:bg-white/5 transition-colors group cursor-pointer"
                   >
                     <td className="px-6 py-4">
                       <span className="font-mono text-blue-500 font-bold">{item.id}</span>
                     </td>
-                    <td className="px-6 py-4 text-[var(--text-secondary)]">
+                    <td className="px-6 py-4 text-[var(--text-secondary)] hidden md:table-cell">
                       <div className="flex items-center gap-2">
                         <Calendar size={14} className="text-slate-400" />
                         {item.tanggal}
@@ -102,14 +132,14 @@ export default function RiwayatTransaksiPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="space-y-1">
-                        <div className="font-bold text-[var(--text-primary)]">{item.item}</div>
+                        <div className="font-bold text-[var(--text-primary)] leading-tight">{item.item}</div>
                         <div className="flex items-center gap-2">
                           <Tag size={12} className="text-blue-500" />
                           <span className="text-[10px] bg-blue-500/10 text-blue-500 px-1.5 py-0.5 rounded font-bold uppercase">{item.paket}</span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 hidden sm:table-cell">
                       <div className={cn(
                         "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider",
                         item.jenis === 'Masuk' 
@@ -128,9 +158,15 @@ export default function RiwayatTransaksiPage() {
                         {item.jenis === 'Masuk' ? '+' : '-'}{item.jumlah}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-[var(--text-secondary)] italic text-xs">
+                    <td className="px-6 py-4 text-[var(--text-secondary)] italic text-xs hidden lg:table-cell">
                       <div className="flex flex-col gap-1">
                         <span>"{item.keterangan}"</span>
+                        {item.catatanHTML && (
+                          <div 
+                            className="bg-blue-500/5 text-blue-500 p-1 px-2 rounded-lg not-italic font-bold text-[9px] w-fit"
+                            dangerouslySetInnerHTML={{ __html: item.catatanHTML }}
+                          />
+                        )}
                         <div className="flex items-center gap-1.5 not-italic font-medium text-[10px]">
                           <UserIcon size={12} className="text-blue-500" />
                           <span>{item.petugas}</span>
@@ -151,6 +187,85 @@ export default function RiwayatTransaksiPage() {
           </table>
         </div>
       </div>
+      <AnimatePresence>
+        {selectedTransaction && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-[var(--bg-secondary)] rounded-3xl shadow-2xl p-6 md:p-8 max-w-lg w-full border border-[var(--border)]"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
+                    <History size={24} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black uppercase tracking-tighter text-[var(--text-primary)]">Detail Transaksi</h2>
+                    <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest">{selectedTransaction.id}</p>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedTransaction(null)} className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-full transition-all">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="p-4 bg-[var(--bg-primary)] rounded-2xl border border-[var(--border)]">
+                  <p className="text-[9px] font-black text-[var(--text-secondary)] uppercase mb-2">Item / Bahan Ajar</p>
+                  <p className="text-base font-bold text-[var(--text-primary)] mb-1">{selectedTransaction.item}</p>
+                  <span className="px-2 py-0.5 bg-blue-500/10 text-blue-500 rounded text-[9px] font-bold uppercase">{selectedTransaction.paket}</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="p-4 bg-[var(--bg-primary)] rounded-2xl border border-[var(--border)]">
+                    <p className="text-[9px] font-black text-[var(--text-secondary)] uppercase mb-2">Jenis & Jumlah</p>
+                    <div className={cn(
+                      "flex items-center gap-2 font-black text-base",
+                      selectedTransaction.jenis === 'Masuk' ? "text-emerald-500" : "text-orange-500"
+                    )}>
+                      {selectedTransaction.jenis === 'Masuk' ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
+                      {selectedTransaction.jenis === 'Masuk' ? '+' : '-'}{selectedTransaction.jumlah}
+                    </div>
+                  </div>
+                   <div className="p-4 bg-[var(--bg-primary)] rounded-2xl border border-[var(--border)]">
+                    <p className="text-[9px] font-black text-[var(--text-secondary)] uppercase mb-2">Tanggal</p>
+                    <div className="flex items-center gap-2 font-black text-[var(--text-primary)] text-sm">
+                       <Calendar size={16} className="text-blue-500" />
+                       {selectedTransaction.tanggal}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 text-xs font-medium border-t border-[var(--border)] pt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[var(--text-secondary)]">Petugas</span>
+                    <div className="flex items-center gap-1.5 font-bold text-[var(--text-primary)]">
+                       <UserIcon size={14} className="text-blue-500" />
+                       {selectedTransaction.petugas}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[var(--text-secondary)] block">Keterangan:</span>
+                    <p className="p-3 bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] italic">"{selectedTransaction.keterangan}"</p>
+                  </div>
+                </div>
+
+                {selectedTransaction.catatanHTML && (
+                  <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-2xl">
+                    <p className="text-[9px] font-black text-blue-600 uppercase mb-2">Catatan Internal</p>
+                    <div 
+                      className="text-[11px] text-[var(--text-secondary)] italic leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: selectedTransaction.catatanHTML }}
+                    />
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

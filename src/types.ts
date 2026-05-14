@@ -49,6 +49,7 @@ export interface TransactionHistory {
   petugas: string;
   keterangan: string;
   paket: string;
+  catatanHTML?: string;
 }
 
 export interface TrackingData {
