@@ -68,9 +68,9 @@ export default function RiwayatTransaksiPage() {
         </div>
       </div>
 
-      <div className="bg-[var(--bg-secondary)] rounded-3xl border border-[var(--border)] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-[13px]">
+      <div className="bg-[var(--bg-secondary)] rounded-3xl border border-[var(--border)] overflow-hidden shadow-sm">
+        <div className="overflow-x-auto scrollbar-hide">
+          <table className="w-full text-left border-collapse text-[13px] min-w-[700px]">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--bg-primary)]/50">
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">ID Transaksi</th>

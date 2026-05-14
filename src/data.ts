@@ -1,5 +1,65 @@
-import { BahanAjar, TrackingData, User, TransactionHistory } from './types';
+import { BahanAjar, TrackingData, User, TransactionHistory, UPBJJData, PaketBahanAjar } from './types';
 import { COVERS } from './assets';
+
+export const upbjjList: UPBJJData[] = [
+  { kode: 'JKT', nama: 'Jakarta', expeditions: ['JNE Regular', 'JNE Express', 'Reguler (3-5 hari)', 'Ekspres (1-2 hari)'] },
+  { kode: 'BDG', nama: 'Bandung', expeditions: ['JNE Regular', 'JNE Express', 'Pos Indonesia'] },
+  { kode: 'SBY', nama: 'Surabaya', expeditions: ['JNE Regular', 'JNE Express', 'Reguler (3-5 hari)', 'Ekspres (1-2 hari)'] },
+  { kode: 'MLG', nama: 'Malang', expeditions: ['JNE Regular'] },
+  { kode: 'MKS', nama: 'Makassar', expeditions: ['JNE Regular', 'JNE Express', 'Reguler (3-5 hari)', 'Ekspres (1-2 hari)'] },
+  { kode: 'PDG', nama: 'Padang', expeditions: ['Reguler (3-5 hari)', 'Ekspres (1-2 hari)'] },
+  { kode: 'DPS', nama: 'Denpasar', expeditions: ['Reguler (3-5 hari)', 'Ekspres (1-2 hari)'] }
+];
+
+export const kategoriList: string[] = ["MK Wajib", "MK Pilihan", "Praktikum", "Problem-Based", "Ilmu Sosial", "Manajemen", "Sains", "Keguruan"];
+
+export const paketList: PaketBahanAjar[] = [
+  { 
+    kode: 'PAKET-UT-001', 
+    nama: 'PAKET IPS Dasar', 
+    items: [
+      { kode: 'EKMA4116', nama: 'Pengantar Manajemen' },
+      { kode: 'EKMA4115', nama: 'Pengantar Akuntansi' }
+    ],
+    harga: 120000 
+  },
+  { 
+    kode: 'PAKET-UT-002', 
+    nama: 'PAKET IPA Dasar', 
+    items: [
+      { kode: 'BIOL4201', nama: 'Biologi Umum (Praktikum)' },
+      { kode: 'FISIP4001', nama: 'Dasar-Dasar Sosiologi' }
+    ],
+    harga: 140000 
+  },
+  { 
+    kode: 'PKT-01', 
+    nama: 'Paket Sarjana Hukum', 
+    items: [
+      { kode: 'HKUM4101', nama: 'Pengantar Ilmu Hukum' },
+      { kode: 'HKUM4201', nama: 'Hukum Tata Negara' }
+    ],
+    harga: 250000 
+  },
+  { 
+    kode: 'PKT-02', 
+    nama: 'Paket Sarjana Manajemen', 
+    items: [
+      { kode: 'EKMA4111', nama: 'Pengantar Bisnis' },
+      { kode: 'EKMA4116', nama: 'Manajemen' }
+    ],
+    harga: 300000 
+  },
+  { 
+    kode: 'PKT-03', 
+    nama: 'Paket Sarjana Komunikasi', 
+    items: [
+      { kode: 'SKOM4101', nama: 'Pengantar Ilmu Komunikasi' },
+      { kode: 'SKOM4201', nama: 'Teori Komunikasi' }
+    ],
+    harga: 280000 
+  }
+];
 
 export const dataPengguna: User[] = [
   {
@@ -38,13 +98,77 @@ export const dataPengguna: User[] = [
     id: 5,
     nama: "Admin SITTA",
     email: "admin@ut.ac.id",
-    password: "admin123",
+    password: "password123",
     role: "Administrator",
     lokasi: "Pusat"
+  },
+  {
+    id: 6,
+    nama: "Admin Gudang",
+    email: "gudang@ut.ac.id",
+    password: "password123",
+    role: "Admin",
+    lokasi: "Kantor Pusat"
   }
 ];
 
 export const dataBahanAjar: BahanAjar[] = [
+  {
+    kodeBarang: "EKMA4116",
+    namaBarang: "Pengantar Manajemen",
+    jenisBarang: "BMP",
+    edisi: "2024",
+    stok: 28,
+    kategori: "MK Wajib",
+    upbjj: "Jakarta",
+    safety: 20,
+    harga: 65000,
+    catatanHTML: "<em>Edisi 2024, cetak ulang</em>",
+    kodeLokasi: "R1-A3",
+    cover: COVERS.PENGANTAR_KOMUNIKASI
+  },
+  {
+    kodeBarang: "EKMA4115",
+    namaBarang: "Pengantar Akuntansi",
+    jenisBarang: "BMP",
+    edisi: "1",
+    stok: 7,
+    kategori: "MK Wajib",
+    upbjj: "Jakarta",
+    safety: 15,
+    harga: 60000,
+    catatanHTML: "<strong>Cover baru</strong>",
+    kodeLokasi: "R1-A4",
+    cover: COVERS.MANAJEMEN_KEUANGAN
+  },
+  {
+    kodeBarang: "BIOL4201",
+    namaBarang: "Biologi Umum (Praktikum)",
+    jenisBarang: "BMP",
+    edisi: "1",
+    stok: 12,
+    kategori: "Praktikum",
+    upbjj: "Surabaya",
+    safety: 10,
+    harga: 80000,
+    catatanHTML: "Butuh <u>pendingin</u> untuk kit basah",
+    kodeLokasi: "R3-B2",
+    cover: COVERS.MIKROBIOLOGI
+  },
+  {
+    kodeBarang: "FISIP4001",
+    namaBarang: "Dasar-Dasar Sosiologi",
+    jenisBarang: "BMP",
+    edisi: "1",
+    stok: 2,
+    kategori: "MK Pilihan",
+    upbjj: "Makassar",
+    safety: 8,
+    harga: 55000,
+    catatanHTML: "Stok <i>menipis</i>, prioritaskan reorder",
+    kodeLokasi: "R2-C1",
+    cover: COVERS.KEPEMIMPINAN
+  },
   {
     kodeLokasi: "0TMP01",
     kodeBarang: "SKOM4101",
@@ -52,6 +176,11 @@ export const dataBahanAjar: BahanAjar[] = [
     jenisBarang: "BMP",
     edisi: "3",
     stok: 548,
+    kategori: "Ilmu Sosial",
+    upbjj: "Jakarta",
+    safety: 100,
+    harga: 45000,
+    catatanHTML: "Stok baru diterima dari percetakan.",
     cover: COVERS.PENGANTAR_KOMUNIKASI
   },
   {
@@ -60,7 +189,12 @@ export const dataBahanAjar: BahanAjar[] = [
     namaBarang: "Manajemen Keuangan",
     jenisBarang: "BMP",
     edisi: "3",
-    stok: 392,
+    stok: 85,
+    kategori: "Manajemen",
+    upbjj: "Jakarta",
+    safety: 100,
+    harga: 55000,
+    catatanHTML: "Perlu segera re-order.",
     cover: COVERS.MANAJEMEN_KEUANGAN
   },
   {
@@ -69,7 +203,12 @@ export const dataBahanAjar: BahanAjar[] = [
     namaBarang: "Kepemimpinan",
     jenisBarang: "BMP",
     edisi: "2",
-    stok: 278,
+    stok: 0,
+    kategori: "Ilmu Sosial",
+    upbjj: "Surabaya",
+    safety: 50,
+    harga: 40000,
+    catatanHTML: "Stok kosong, dalam proses pengiriman.",
     cover: COVERS.KEPEMIMPINAN
   },
   {
@@ -79,6 +218,11 @@ export const dataBahanAjar: BahanAjar[] = [
     jenisBarang: "BMP",
     edisi: "3",
     stok: 165,
+    kategori: "Sains",
+    upbjj: "Malang",
+    safety: 40,
+    harga: 65000,
+    catatanHTML: "Stok aman.",
     cover: COVERS.MIKROBIOLOGI
   },
   {
@@ -88,65 +232,67 @@ export const dataBahanAjar: BahanAjar[] = [
     jenisBarang: "BMP",
     edisi: "2",
     stok: 204,
+    kategori: "Keguruan",
+    upbjj: "Bandung",
+    safety: 30,
+    harga: 35000,
+    catatanHTML: "-",
     cover: COVERS.PERKEMBANGAN_ANAK
   }
 ];
 
 export const dataTracking: Record<string, TrackingData> = {
-  "2023001234": {
-    nomorDO: "2023001234",
+  "DO2025-0001": {
+    nomorDO: "DO2025-0001",
+    nim: "123456789",
     nama: "Rina Wulandari",
     status: "Dalam Perjalanan",
     ekspedisi: "JNE",
     tanggalKirim: "2025-08-25",
-    paket: "0JKT01",
-    total: "Rp 180.000",
-    perjalanan:[
-      {
-        waktu: "2025-08-25 10:12:20",
-        keterangan: "Penerimaan di Loket: TANGERANG SELATAN. Pengirim: Universitas Terbuka"
-      },
-      {
-        waktu: "2025-08-25 14:07:56",
-        keterangan: "Tiba di Hub: TANGERANG SELATAN"
-      },      
-      {
-        waktu: "2025-08-25 10:12:20",
-        keterangan: "Diteruskan ke Kantor Jakarta Selatan"
-      },
+    paket: "PAKET-UT-001",
+    total: 120000,
+    perjalanan: [
+      { waktu: "2025-08-25 10:12:20", keterangan: "Penerimaan di Loket: TANGSEL" },
+      { waktu: "2025-08-25 14:07:56", keterangan: "Tiba di Hub: JAKSEL" },
+      { waktu: "2025-08-26 08:44:01", keterangan: "Diteruskan ke Kantor Tujuan" }
     ]
   },
-  "2023005678": {
-    nomorDO: "2023005678",
-    nama: "Agus Pranoto",
-    status: "Dikirim",
-    ekspedisi: "Pos Indonesia",
-    tanggalKirim: "2025-08-25",
-    paket: "0UPBJJBDG",
-    total: "Rp 220.000",
+  "DO2025-001": {
+    nomorDO: "DO2025-001",
+    nim: "041234567",
+    nama: "Rina Wulandari",
+    status: "Dalam Perjalanan",
+    ekspedisi: "JNE Regular",
+    tanggalKirim: "2025-05-14",
+    paket: "PKT-01",
+    total: 250000,
     perjalanan:[
       {
-        waktu: "2025-08-25 10:12:20",
+        waktu: "2025-05-14 10:12:20",
         keterangan: "Penerimaan di Loket: TANGERANG SELATAN. Pengirim: Universitas Terbuka"
       },
       {
-        waktu: "2025-08-25 14:07:56",
+        waktu: "2025-05-14 14:07:56",
         keterangan: "Tiba di Hub: TANGERANG SELATAN"
-      },      
+      }
+    ]
+  },
+  "DO2025-002": {
+    nomorDO: "DO2025-002",
+    nim: "042345678",
+    nama: "Agus Pranoto",
+    status: "Selesai",
+    ekspedisi: "JNE Express",
+    tanggalKirim: "2025-05-13",
+    paket: "PKT-02",
+    total: 300000,
+    perjalanan:[
       {
-        waktu: "2025-08-25 16:30:10",
-        keterangan: "Diteruskan ke Kantor Kota Bandung"
+        waktu: "2025-05-13 09:00:00",
+        keterangan: "Penerimaan di Loket: TANGERANG SELATAN"
       },
       {
-        waktu: "2025-08-26 12:15:33",
-        keterangan: "Tiba di Hub: Kota BANDUNG"
-      },
-      {
-        waktu: "2025-08-26 15:06:12",
-        keterangan: "Proses antar ke Cimahi"
-      },
-      {
-        waktu: "2025-08-26 20:00:00",
+        waktu: "2025-05-14 20:00:00",
         keterangan: "Selesai Antar. Penerima: Agus Pranoto"
       }
     ]

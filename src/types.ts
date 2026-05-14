@@ -15,6 +15,24 @@ export interface BahanAjar {
   edisi: string;
   stok: number;
   cover: string;
+  kategori: string;
+  upbjj: string;
+  safety: number;
+  harga: number;
+  catatanHTML: string;
+}
+
+export interface UPBJJData {
+  kode: string;
+  nama: string;
+  expeditions: string[];
+}
+
+export interface PaketBahanAjar {
+  kode: string;
+  nama: string;
+  items: { kode: string; nama: string }[];
+  harga: number;
 }
 
 export interface Perjalanan {
@@ -35,11 +53,12 @@ export interface TransactionHistory {
 
 export interface TrackingData {
   nomorDO: string;
+  nim: string;
   nama: string;
   status: string;
   ekspedisi: string;
   tanggalKirim: string;
   paket: string;
-  total: string;
+  total: number;
   perjalanan: Perjalanan[];
 }

@@ -162,16 +162,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0">
-        <header className="flex h-20 md:h-24 items-center justify-between px-4 md:px-10">
-          <div>
+      <main className="flex-1 flex flex-col min-w-0 h-screen">
+        <header className="flex flex-shrink-0 h-20 md:h-24 items-center justify-between px-4 md:px-10 border-b border-[var(--border)] lg:border-none">
+          <div className="flex items-center gap-3 lg:hidden">
+             <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-blue-500 rounded-lg shadow-md" />
+             <span className="text-lg font-black text-[var(--text-primary)] tracking-tighter">SITTA</span>
+          </div>
+          <div className="hidden sm:block">
             <h1 className="text-lg md:text-2xl font-bold text-[var(--text-primary)]">Selamat {greeting}, {userData?.nama?.split(' ')[0] || 'Admin'}</h1>
             <p className="text-[10px] md:text-sm text-[var(--text-secondary)]">{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} • SITTA</p>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <Link
               to="/dashboard"
-              className="p-2 md:p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-blue-500 transition-all"
+              className="p-2 md:p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-blue-500 transition-all hidden xs:flex"
               title="Beranda"
             >
               <Home size={18} className="md:w-5 md:h-5" />
@@ -185,7 +189,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="lg:hidden">
               <button 
                 onClick={() => setIsSidebarOpen(true)}
-                className="p-2 md:p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"
+                className="p-2 md:p-2.5 rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all"
               >
                 <Menu size={18} className="md:w-5 md:h-5" />
               </button>
@@ -193,7 +197,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <div className="flex-1 px-4 md:px-10 pb-10 overflow-y-auto">
+        <div className="flex-1 px-4 md:px-10 py-6 md:py-10 pb-20 overflow-y-auto">
           {children}
         </div>
       </main>
