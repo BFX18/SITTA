@@ -33,6 +33,13 @@ export default function StokPage() {
   const [selectedItemForDetail, setSelectedItemForDetail] = useState<BahanAjar | null>(null);
   const [itemToDelete, setItemToDelete] = useState<BahanAjar | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAdding) {
+      setFormError(null);
+    }
+  }, [isAdding]);
   
   // Filter States
   const [filterUPBJJ, setFilterUPBJJ] = useState('');
@@ -108,36 +115,37 @@ export default function StokPage() {
   };
 
   const validateForm = () => {
+    setFormError(null);
     if (!formData.kode.trim()) {
-      alert('Kode mata kuliah wajib diisi!');
+      setFormError('Kode mata kuliah wajib diisi!');
       return false;
     }
     if (!formData.judul.trim()) {
-      alert('Nama mata kuliah wajib diisi!');
+      setFormError('Nama mata kuliah wajib diisi!');
       return false;
     }
     if (!formData.kategori) {
-      alert('Kategori wajib dipilih!');
+      setFormError('Kategori wajib dipilih!');
       return false;
     }
     if (!formData.upbjj) {
-      alert('UT-Daerah wajib dipilih!');
+      setFormError('UT-Daerah wajib dipilih!');
       return false;
     }
     if (!formData.lokasiRak.trim()) {
-      alert('Lokasi rak wajib diisi!');
+      setFormError('Lokasi rak wajib diisi!');
       return false;
     }
     if (formData.harga <= 0) {
-      alert('Harga harus lebih besar dari Rp 0!');
+      setFormError('Harga harus lebih besar dari Rp 0!');
       return false;
     }
     if (formData.qty < 0) {
-      alert('Jumlah stok tidak boleh kurang dari 0!');
+      setFormError('Jumlah stok tidak boleh kurang dari 0!');
       return false;
     }
     if (formData.safety < 0) {
-      alert('Safety stock tidak boleh kurang dari 0!');
+      setFormError('Safety stock tidak boleh kurang dari 0!');
       return false;
     }
     return true;
@@ -530,6 +538,16 @@ export default function StokPage() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+                {formError && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-xs flex items-center gap-2"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+                    <span>{formError}</span>
+                  </motion.div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase text-[var(--text-secondary)] ml-1">Kode Mata Kuliah</label>

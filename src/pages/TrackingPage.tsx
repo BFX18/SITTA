@@ -58,6 +58,7 @@ export default function TrackingPage() {
   }, [dataTracking]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState<TrackingData | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [isAddingMode, setIsAddingMode] = useState(false);
 
   // States for adding tracking progress log
@@ -88,6 +89,7 @@ export default function TrackingPage() {
       if (e.key === 'Escape' || e.key === 'Esc') {
         setSearchQuery('');
         setSearchResult(null);
+        setSearchError(null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -138,6 +140,7 @@ export default function TrackingPage() {
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
+    setSearchError(null);
     if (!searchQuery) {
       setSearchResult(null);
       return;
@@ -172,7 +175,9 @@ export default function TrackingPage() {
     });
 
     setSearchResult(found || null);
-    if (!found) alert("Nomor DO atau NIM tidak ditemukan!");
+    if (!found) {
+      setSearchError(`Nomor DO atau NIM "${searchQuery}" tidak ditemukan!`);
+    }
   };
 
   const generateDONumber = () => {
@@ -346,24 +351,42 @@ export default function TrackingPage() {
       </div>
 
       {/* Search Bar */}
-      <form onSubmit={handleSearch} className="group relative">
-        <div className="absolute inset-y-0 left-4 md:left-6 flex items-center pointer-events-none text-[var(--text-secondary)] group-focus-within:text-blue-500 transition-colors z-10">
-          <Search size={22} className="w-5 h-5 md:w-6 md:h-6" />
-        </div>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Masukkan Nomor DO..."
-          className="w-full pl-12 md:pl-16 pr-4 md:pr-48 py-4 md:py-6 bg-[var(--bg-secondary)] border-2 border-[var(--border)] rounded-2xl md:rounded-[32px] text-lg md:text-xl font-bold tracking-tight outline-none focus:border-blue-500 shadow-xl md:shadow-2xl transition-all"
-        />
-        <button 
-          type="submit"
-          className="mt-4 md:mt-0 md:absolute md:right-3 md:top-1/2 md:-translate-y-1/2 w-full md:w-auto px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl md:rounded-[24px] font-black uppercase tracking-tighter shadow-xl shadow-blue-500/30 active:scale-95 transition-all"
-        >
-          Lacak Paket
-        </button>
-      </form>
+      <div className="space-y-3">
+        <form onSubmit={handleSearch} className="group relative flex flex-col md:block">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-4 md:left-6 flex items-center pointer-events-none text-[var(--text-secondary)] group-focus-within:text-blue-500 transition-colors z-10">
+              <Search size={22} className="w-5 h-5 md:w-6 md:h-6" />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setSearchError(null);
+              }}
+              placeholder="Masukkan Nomor DO atau NIM..."
+              className="w-full pl-12 md:pl-16 pr-4 md:pr-48 py-4 md:py-6 bg-[var(--bg-secondary)] border-2 border-[var(--border)] rounded-2xl md:rounded-[32px] text-lg md:text-xl font-bold tracking-tight outline-none focus:border-blue-500 shadow-xl md:shadow-2xl transition-all"
+            />
+          </div>
+          <button 
+            type="submit"
+            className="mt-4 md:mt-0 md:absolute md:right-3 md:top-1/2 md:-translate-y-1/2 w-full md:w-auto px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl md:rounded-[24px] font-black uppercase tracking-tighter shadow-xl shadow-blue-500/30 active:scale-95 transition-all text-center"
+          >
+            Lacak Paket
+          </button>
+        </form>
+
+        {searchError && (
+          <motion.div 
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-xs md:text-sm flex items-center gap-2.5"
+          >
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+            <span>{searchError}</span>
+          </motion.div>
+        )}
+      </div>
 
       {/* DO List Table (Visible when no search result) */}
       {!searchResult && (

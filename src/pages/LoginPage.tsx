@@ -8,12 +8,14 @@ import { dataPengguna } from '../data';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [modalType, setModalType] = useState<'forgot' | 'register' | null>(null);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     const user = dataPengguna.find(u => u.email === email && u.password === password);
     
     if (user) {
@@ -21,7 +23,7 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(user));
       navigate('/dashboard');
     } else {
-      alert('email/password yang anda masukkan salah');
+      setError('Email atau password yang Anda masukkan salah');
     }
   };
 
@@ -40,13 +42,27 @@ export default function LoginPage() {
         className="max-w-md w-full"
       >
         <div className="bg-[var(--bg-secondary)] rounded-[24px] shadow-2xl overflow-hidden p-6 sm:p-10 border border-[var(--border)]">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-yellow-400 to-blue-500 rounded-xl mb-4 shadow-lg">
               <span className="text-2xl font-bold text-white tracking-tighter">UT</span>
             </div>
             <h1 className="text-2xl font-bold text-[var(--text-primary)]">Selamat Datang</h1>
             <p className="text-[var(--text-secondary)] mt-2 text-sm">Sistem Informasi Bahan Ajar SITTA UT</p>
           </div>
+
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-xs sm:text-sm flex items-center gap-2.5"
+              >
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+                <span>{error}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
@@ -55,7 +71,10 @@ export default function LoginPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError(null);
+                  }}
                   placeholder="admin@ut.ac.id"
                   className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-[var(--text-primary)]"
                   required
@@ -69,7 +88,10 @@ export default function LoginPage() {
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError(null);
+                  }}
                   placeholder="••••••••"
                   className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-[var(--text-primary)]"
                   required
