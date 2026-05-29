@@ -444,22 +444,22 @@ export default function TrackingPage() {
                 }}
                 className="p-4 rounded-xl bg-[var(--bg-primary)]/40 border border-[var(--border)] flex justify-between items-center hover:border-blue-500/30 transition-all cursor-pointer"
               >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-black text-blue-500 text-xs">{doItem.nomorDO}</span>
-                    <span className="text-[9px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[var(--text-secondary)] font-bold">{doItem.paket}</span>
+                 <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="font-mono font-black text-blue-500 text-xs shrink-0">{doItem.nomorDO}</span>
+                    <span className="text-[9px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[var(--text-secondary)] font-bold truncate max-w-[150px]" title={doItem.paket}>{doItem.paket}</span>
                   </div>
-                  <h4 className="font-bold text-[var(--text-primary)] text-sm">{doItem.nama}</h4>
+                  <h4 className="font-bold text-[var(--text-primary)] text-sm truncate" title={doItem.nama}>{doItem.nama}</h4>
                   <p className="text-[10px] text-[var(--text-secondary)]">NIM: {doItem.nim}</p>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 pl-3">
                   <span className={cn(
-                    "text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider",
+                    "text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider whitespace-nowrap",
                     doItem.status === "Selesai" ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
                   )}>
                     {doItem.status}
                   </span>
-                  <div className="p-1.5 bg-blue-500/10 text-blue-500 rounded-lg">
+                  <div className="p-1.5 bg-blue-500/10 text-blue-500 rounded-lg shrink-0">
                     <ChevronRight size={14} />
                   </div>
                 </div>

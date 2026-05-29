@@ -301,11 +301,11 @@ export default function StokPage() {
               <tr className="border-b border-[var(--border)] bg-[var(--bg-primary)]/50">
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold whitespace-nowrap">Kode / Nama Mata Kuliah</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold hidden lg:table-cell">Kategori</th>
-                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold hidden md:table-cell">UT-Daerah</th>
+                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold hidden lg:table-cell">UT-Daerah</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold hidden xl:table-cell">Lokasi Rak</th>
-                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold text-right hidden sm:table-cell">Harga</th>
+                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold text-right hidden lg:table-cell">Harga</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold text-center whitespace-nowrap">Jumlah Stok</th>
-                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold text-center hidden md:table-cell whitespace-nowrap">Stok Safety</th>
+                <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold text-center hidden lg:table-cell whitespace-nowrap">Stok Safety</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold">Status</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold hidden xl:table-cell">Catatan</th>
                 <th className="px-6 py-4 text-[var(--text-secondary)] font-semibold text-right whitespace-nowrap">Opsi</th>
@@ -335,7 +335,7 @@ export default function StokPage() {
                         {item.kategori}
                       </div>
                     </td>
-                    <td className="px-6 py-4 hidden md:table-cell">
+                    <td className="px-6 py-4 hidden lg:table-cell">
                       <div className="flex items-center gap-1.5 text-[var(--text-secondary)] font-medium">
                         <MapPin size={12} className="text-slate-400" />
                         {item.upbjj}
@@ -344,13 +344,13 @@ export default function StokPage() {
                     <td className="px-6 py-4 hidden xl:table-cell">
                       <span className="px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded text-[11px] font-bold text-[var(--text-secondary)]">{item.lokasiRak}</span>
                     </td>
-                    <td className="px-6 py-4 text-right hidden sm:table-cell whitespace-nowrap font-bold text-[var(--text-primary)]">
+                    <td className="px-6 py-4 text-right hidden lg:table-cell whitespace-nowrap font-bold text-[var(--text-primary)]">
                       Rp {(item.harga ?? 0).toLocaleString('id-ID')}
                     </td>
                     <td className="px-6 py-4 text-center whitespace-nowrap">
                       <span className={cn("text-xs md:text-sm font-black", status.color)}>{itemQty} buah</span>
                     </td>
-                    <td className="px-6 py-4 text-center hidden md:table-cell whitespace-nowrap">
+                    <td className="px-6 py-4 text-center hidden lg:table-cell whitespace-nowrap">
                       <span className="text-xs font-bold text-slate-500">{item.safety} buah</span>
                     </td>
                     <td className="px-6 py-4 relative group/status overflow-visible">
@@ -463,37 +463,37 @@ export default function StokPage() {
                 </span>
               </div>
 
-              <div className="flex justify-between items-end pt-3 border-t border-[var(--border)]/50">
-                <div className="space-y-0.5">
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Harga Satuan</p>
-                  <p className="text-sm font-bold text-[var(--text-primary)]">
-                    Rp {(item.harga ?? 0).toLocaleString('id-ID')}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-3 border-t border-[var(--border)]/50 gap-3">
+                <div className="flex justify-between sm:justify-start items-center gap-6 w-full sm:w-auto">
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Harga Satuan</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)]">
+                      Rp {(item.harga ?? 0).toLocaleString('id-ID')}
+                    </p>
+                  </div>
+                  <div className="space-y-0.5">
                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Stok / Safety</p>
                     <p className="text-sm font-black text-[var(--text-primary)]">
                       {itemQty} <span className="text-[10px] text-slate-500 font-medium">/ {item.safety}</span>
                     </p>
                   </div>
-                  
-                  <div className="flex items-center gap-1 border-l border-[var(--border)] pl-3" onClick={(e) => e.stopPropagation()}>
-                    <button 
-                      onClick={() => { setEditingItem(item); setFormData({ ...item }); setIsAdding(true); }}
-                      className="p-1.5 text-[var(--text-secondary)] hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all"
-                      title="Edit"
-                    >
-                      <Edit3 size={16} />
-                    </button>
-                    <button 
-                      onClick={() => setItemToDelete(item)}
-                      className="p-1.5 text-[var(--text-secondary)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                      title="Hapus"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+                </div>
+                
+                <div className="flex items-center justify-end gap-1.5 border-t sm:border-t-0 sm:border-l border-[var(--border)]/30 pt-2 sm:pt-0 sm:pl-3 w-full sm:w-auto" onClick={(e) => e.stopPropagation()}>
+                  <button 
+                    onClick={() => { setEditingItem(item); setFormData({ ...item }); setIsAdding(true); }}
+                    className="p-1.5 text-[var(--text-secondary)] hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all flex items-center justify-center gap-1 text-xs font-bold"
+                    title="Edit"
+                  >
+                    <Edit3 size={15} /> <span className="sm:hidden">Ubah</span>
+                  </button>
+                  <button 
+                    onClick={() => setItemToDelete(item)}
+                    className="p-1.5 text-[var(--text-secondary)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all flex items-center justify-center gap-1 text-xs font-bold"
+                    title="Hapus"
+                  >
+                    <Trash2 size={15} /> <span className="sm:hidden">Hapus</span>
+                  </button>
                 </div>
               </div>
             </motion.div>

@@ -236,17 +236,17 @@ export default function MonitoringDOPage() {
                 key={item.no} 
                 className="p-5 rounded-2xl bg-[var(--bg-primary)]/40 border border-[var(--border)] space-y-4 hover:border-blue-500/50 transition-all active:scale-[0.98]"
               >
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                        <span className="font-mono text-blue-500 font-bold text-[10px] tracking-tight">{item.no}</span>
-                        <span className="bg-slate-200 dark:bg-slate-800 text-[8px] px-1 rounded text-[var(--text-secondary)] font-bold">{item.paket}</span>
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                        <span className="font-mono text-blue-500 font-bold text-[10px] tracking-tight shrink-0">{item.no}</span>
+                        <span className="bg-slate-200 dark:bg-slate-800 text-[8px] px-1.5 py-0.5 rounded text-[var(--text-secondary)] font-bold break-words">{item.paket}</span>
                     </div>
-                    <h4 className="text-sm font-bold text-[var(--text-primary)]">{item.mahasiswa}</h4>
+                    <h4 className="text-sm font-bold text-[var(--text-primary)] break-words">{item.mahasiswa}</h4>
                   </div>
                   <span className={cn(
-                      "px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest",
+                      "px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest sm:self-start w-fit whitespace-nowrap shrink-0",
                       (item.status === 'Diterima' || item.status === 'Selesai') ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
                   )}>
                       {item.status}

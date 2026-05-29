@@ -79,7 +79,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] flex transition-colors duration-300">
       {/* Sidebar Desktop */}
-      <aside className="hidden lg:flex flex-col w-[260px] bg-[var(--bg-secondary)] border-r border-[var(--border)] p-6 sticky top-0 h-screen">
+      <aside className="hidden lg:flex flex-col w-[260px] bg-[var(--bg-secondary)] border-r border-[var(--border)] p-6 sticky top-0 h-[100dvh] lg:h-screen">
         <div className="flex items-center gap-3 mb-10 px-2 group cursor-pointer">
           <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-blue-500 rounded-lg shadow-md transition-transform group-hover:rotate-12" />
           <span className="text-xl font-extrabold text-[var(--text-primary)] tracking-tighter">SITTA UT</span>
@@ -162,7 +162,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 h-screen">
+      <main className="flex-1 flex flex-col min-w-0 h-[100dvh] lg:h-screen">
         <header className="flex flex-shrink-0 h-20 md:h-24 items-center justify-between px-4 md:px-10 border-b border-[var(--border)] lg:border-none">
           <div className="flex items-center gap-3 lg:hidden">
              <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-blue-500 rounded-lg shadow-md" />
@@ -175,7 +175,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2 md:gap-4">
             <Link
               to="/dashboard"
-              className="p-2 md:p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-blue-500 transition-all hidden xs:flex"
+              className="p-2 md:p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-blue-500 transition-all flex"
               title="Beranda"
             >
               <Home size={18} className="md:w-5 md:h-5" />
@@ -201,6 +201,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </main>
+
+      {/* Floating Home Shortcut Button (visible on mobile / tablet) */}
+      <Link
+        to="/dashboard"
+        className="fixed bottom-6 right-6 z-40 lg:hidden p-4 rounded-full bg-blue-500 text-white shadow-2xl shadow-blue-500/40 hover:bg-blue-600 transition-all active:scale-95 flex items-center justify-center border border-white/10 cursor-pointer hover:shadow-blue-500/60"
+        title="Kembali ke Beranda"
+      >
+        <Home size={22} />
+      </Link>
 
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
