@@ -6,8 +6,8 @@ import { dataBahanAjar } from '../data';
 
 export default function RekapBahanAjarPage() {
   const chartData = dataBahanAjar.map(item => ({
-    name: item.kodeBarang,
-    stok: item.stok
+    name: item.kode,
+    stok: item.qty ?? 0
   }));
 
   const pieData = [

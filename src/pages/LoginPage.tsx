@@ -39,7 +39,7 @@ export default function LoginPage() {
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-md w-full"
       >
-        <div className="bg-[var(--bg-secondary)] rounded-[24px] shadow-2xl overflow-hidden p-10 border border-[var(--border)]">
+        <div className="bg-[var(--bg-secondary)] rounded-[24px] shadow-2xl overflow-hidden p-6 sm:p-10 border border-[var(--border)]">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-yellow-400 to-blue-500 rounded-xl mb-4 shadow-lg">
               <span className="text-2xl font-bold text-white tracking-tighter">UT</span>

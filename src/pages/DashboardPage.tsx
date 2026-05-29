@@ -20,9 +20,9 @@ export default function DashboardPage() {
   const latestTransactions = dataRiwayatTransaksi.slice(0, 4);
 
   const stats = useMemo(() => {
-    const totalBuku = dataBahanAjar.reduce((acc, curr) => acc + curr.stok, 0);
-    const lowStock = dataBahanAjar.filter(item => item.stok < item.safety && item.stok > 0).length;
-    const outOfStock = dataBahanAjar.filter(item => item.stok === 0).length;
+    const totalBuku = dataBahanAjar.reduce((acc, curr) => acc + (curr.qty ?? 0), 0);
+    const lowStock = dataBahanAjar.filter(item => (item.qty ?? 0) < item.safety && (item.qty ?? 0) > 0).length;
+    const outOfStock = dataBahanAjar.filter(item => (item.qty ?? 0) === 0).length;
     const activeDO = Object.keys(dataTracking).length;
     
     return { totalBuku, lowStock, outOfStock, activeDO };

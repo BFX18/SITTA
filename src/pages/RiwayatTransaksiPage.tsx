@@ -29,7 +29,7 @@ export default function RiwayatTransaksiPage() {
     const matchesJenis = filterJenis === 'Semua' || item.jenis === filterJenis;
     
     // Find item data for category and region filtering
-    const itemData = dataBahanAjar.find(b => b.namaBarang === item.item);
+    const itemData = dataBahanAjar.find(b => item.item.toLowerCase().includes(b.judul.toLowerCase()));
     const matchesUPBJJ = !filterUPBJJ || (itemData && itemData.upbjj === filterUPBJJ);
     const matchesKategori = !filterKategori || (itemData && itemData.kategori === filterKategori);
 
@@ -97,7 +97,8 @@ export default function RiwayatTransaksiPage() {
         </div>
       </div>
 
-      <div className="bg-[var(--bg-secondary)] rounded-3xl border border-[var(--border)] overflow-hidden shadow-sm">
+      {/* Desktop View */}
+      <div className="hidden md:block bg-[var(--bg-secondary)] rounded-3xl border border-[var(--border)] overflow-hidden shadow-sm">
         <div className="overflow-x-auto scrollbar-hide">
           <table className="w-full text-left border-collapse text-[13px] min-w-[700px]">
             <thead>
@@ -186,6 +187,77 @@ export default function RiwayatTransaksiPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile/Tablet Card View */}
+      <div className="md:hidden space-y-4">
+        {filteredData.length > 0 ? (
+          filteredData.map((item, index) => (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              key={item.id}
+              onClick={() => setSelectedTransaction(item)}
+              className="bg-[var(--bg-secondary)] p-5 rounded-2xl border border-[var(--border)] space-y-4 hover:border-blue-500/30 transition-all cursor-pointer"
+            >
+              <div className="flex justify-between items-start gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-blue-500 font-bold text-xs">{item.id}</span>
+                    <span className="text-[10px] bg-blue-500/10 text-blue-500 px-1.5 py-0.5 rounded font-bold uppercase">{item.paket}</span>
+                  </div>
+                  <h4 className="font-bold text-[var(--text-primary)] text-sm leading-tight">{item.item}</h4>
+                </div>
+                <div className={cn(
+                  "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0",
+                  item.jenis === 'Masuk' 
+                    ? "bg-emerald-500/10 text-emerald-500" 
+                    : "bg-orange-500/10 text-orange-500"
+                )}>
+                  {item.jenis === 'Masuk' ? <ArrowDownLeft size={10} /> : <ArrowUpRight size={10} />}
+                  <span>{item.jenis}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-3 border-t border-[var(--border)]/50">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1 text-[11px] text-[var(--text-secondary)]">
+                    <Calendar size={12} className="text-slate-400" />
+                    <span>{item.tanggal}</span>
+                  </div>
+                  <p className="text-xs text-[var(--text-secondary)] line-clamp-1 italic">"{item.keterangan}"</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Jumlah</p>
+                  <p className={cn(
+                    "text-lg font-black leading-none mt-1",
+                    item.jenis === 'Masuk' ? "text-emerald-500" : "text-orange-500"
+                  )}>
+                    {item.jenis === 'Masuk' ? '+' : '-'}{item.jumlah}
+                  </p>
+                </div>
+              </div>
+
+              {item.catatanHTML && (
+                <div 
+                  className="bg-blue-500/5 text-blue-500 p-2 rounded-xl text-[10px] font-bold"
+                  dangerouslySetInnerHTML={{ __html: item.catatanHTML }}
+                />
+              )}
+
+              <div className="flex items-center gap-1.5 font-medium text-[10px] text-[var(--text-secondary)]">
+                <UserIcon size={12} className="text-blue-500" />
+                <span>Petugas: {item.petugas}</span>
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <div className="bg-[var(--bg-secondary)] py-12 text-center rounded-2xl border border-[var(--border)]">
+            <History size={40} className="mx-auto mb-2 opacity-15 text-[var(--text-secondary)]" />
+            <p className="text-sm font-bold text-[var(--text-secondary)]">Tidak ada data transaksi ditemukan</p>
+          </div>
+        )}
       </div>
       <AnimatePresence>
         {selectedTransaction && (

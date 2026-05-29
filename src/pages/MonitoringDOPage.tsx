@@ -1,15 +1,129 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { TrendingUp, CheckCircle2, Clock, Truck, ShieldAlert } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { dataTracking as initialData } from '../data';
+import { TrackingData } from '../types';
+import { formatIndonesianDate } from './TrackingPage';
 
 export default function MonitoringDOPage() {
-  const doList = [
-    { no: 'DO/2024/0001', mahasiswa: 'Agus Pranoto', progress: 100, status: 'Diterima', date: '2025-08-26', paket: '0UPBJJBDG' },
-    { no: 'DO/2024/0002', mahasiswa: 'Rina Wulandari', progress: 65, status: 'Dalam Perjalanan', date: '2025-08-25', paket: '0JKT01' },
-    { no: 'DO/2024/0003', mahasiswa: 'Budi Santoso', progress: 40, status: 'Transit', date: '2025-08-27', paket: '0MLG01' },
-    { no: 'DO/2024/0004', mahasiswa: 'Siti Marlina', progress: 15, status: 'Diproses', date: '2025-08-28', paket: '0SBY02' },
-  ];
+  const [dataTracking, setDataTracking] = useState<Record<string, TrackingData>>(() => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = localStorage.getItem('sitta_tracking');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved) as Record<string, TrackingData>;
+          const normalized: Record<string, TrackingData> = {};
+          Object.entries(parsed).forEach(([key, val]) => {
+            let normalizedKey = key;
+            const match = key.match(/^DO(\d{4})-(\d+)$/);
+            if (match) {
+              const [_, year, seq] = match;
+              if (seq.length !== 3) {
+                normalizedKey = `DO${year}-${String(parseInt(seq, 10)).padStart(3, '0')}`;
+              }
+            }
+            normalized[normalizedKey] = {
+              ...val,
+              nomorDO: normalizedKey
+            };
+          });
+          return normalized;
+        } catch (e) {
+          return initialData;
+        }
+      }
+    }
+    return initialData;
+  });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('sitta_tracking');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved) as Record<string, TrackingData>;
+          const normalized: Record<string, TrackingData> = {};
+          Object.entries(parsed).forEach(([key, val]) => {
+            let normalizedKey = key;
+            const match = key.match(/^DO(\d{4})-(\d+)$/);
+            if (match) {
+              const [_, year, seq] = match;
+              if (seq.length !== 3) {
+                normalizedKey = `DO${year}-${String(parseInt(seq, 10)).padStart(3, '0')}`;
+              }
+            }
+            normalized[normalizedKey] = {
+              ...val,
+              nomorDO: normalizedKey
+            };
+          });
+          setDataTracking(normalized);
+        } catch (e) {
+          // ignore
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    // Periodically sync if needed, and initial trigger
+    handleStorageChange();
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Sort descending: newest DO first
+  const sortedTracking = (Object.values(dataTracking) as TrackingData[]).sort((a, b) => {
+    const matchA = a.nomorDO.match(/^DO(\d{4})-(\d+)$/);
+    const matchB = b.nomorDO.match(/^DO(\d{4})-(\d+)$/);
+    if (matchA && matchB) {
+      const yearA = parseInt(matchA[1], 10);
+      const yearB = parseInt(matchB[1], 10);
+      const seqA = parseInt(matchA[2], 10);
+      const seqB = parseInt(matchB[2], 10);
+      if (yearA !== yearB) {
+        return yearB - yearA;
+      }
+      return seqB - seqA;
+    }
+    const dateA = new Date(a.tanggalKirim).getTime();
+    const dateB = new Date(b.tanggalKirim).getTime();
+    if (dateA !== dateB) {
+      return dateB - dateA;
+    }
+    return b.nomorDO.localeCompare(a.nomorDO);
+  });
+
+  const doList = sortedTracking.map(item => {
+    let progress = 15;
+    const status = item.status || 'Proses Packing';
+    const norm = status.toLowerCase();
+    
+    if (norm.includes('selesai') || norm.includes('terima') || norm === 'diterima') {
+      progress = 100;
+    } else if (norm.includes('perjalanan') || norm.includes('kirim')) {
+      progress = 65;
+    } else if (norm.includes('transit')) {
+      progress = 40;
+    } else if (norm.includes('penjemputan') || norm.includes('kurir')) {
+      progress = 20;
+    } else if (norm.includes('packing') || norm.includes('proses') || norm.includes('diproses')) {
+      progress = 15;
+    }
+
+    return {
+      no: item.nomorDO,
+      mahasiswa: item.nama,
+      progress,
+      status: item.status,
+      date: item.tanggalKirim,
+      paket: item.paket,
+    };
+  });
+
+  const totalCount = 1280 + doList.length;
+  const runningCount = 40 + doList.filter(d => d.progress < 100).length;
+  const completedCount = 1240 + doList.filter(d => d.progress === 100).length;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -26,7 +140,7 @@ export default function MonitoringDOPage() {
             </div>
             <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest">Total Pengiriman</span>
           </div>
-          <div className="text-3xl font-black text-[var(--text-primary)]">1,284</div>
+          <div className="text-3xl font-black text-[var(--text-primary)]">{totalCount.toLocaleString('id-ID')}</div>
           <p className="text-[10px] text-emerald-500 font-bold mt-1">+12% dari bulan lalu</p>
         </div>
         <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-[var(--border)]">
@@ -36,7 +150,7 @@ export default function MonitoringDOPage() {
             </div>
             <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest">Sedang Berjalan</span>
           </div>
-          <div className="text-3xl font-black text-[var(--text-primary)]">42</div>
+          <div className="text-3xl font-black text-[var(--text-primary)]">{runningCount}</div>
           <p className="text-[10px] text-[var(--text-secondary)] font-bold mt-1">Estimasi tiba tepat waktu</p>
         </div>
         <div className="bg-[var(--bg-secondary)] p-6 rounded-2xl border border-[var(--border)]">
@@ -46,7 +160,7 @@ export default function MonitoringDOPage() {
             </div>
             <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest">Selesai/Diterima</span>
           </div>
-          <div className="text-3xl font-black text-[var(--text-primary)]">1,242</div>
+          <div className="text-3xl font-black text-[var(--text-primary)]">{completedCount.toLocaleString('id-ID')}</div>
           <p className="text-[10px] text-blue-500 font-bold mt-1">98% Success rate</p>
         </div>
       </div>
@@ -100,13 +214,13 @@ export default function MonitoringDOPage() {
                   <td className="px-6 py-4">
                     <span className={cn(
                         "px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider",
-                        item.status === 'Diterima' ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
+                        (item.status === 'Diterima' || item.status === 'Selesai') ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
                     )}>
                         {item.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <span className="text-[var(--text-secondary)] font-medium">{item.date}</span>
+                    <span className="text-[var(--text-secondary)] font-medium">{formatIndonesianDate(item.date)}</span>
                   </td>
                 </tr>
               ))}
@@ -133,7 +247,7 @@ export default function MonitoringDOPage() {
                   </div>
                   <span className={cn(
                       "px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest",
-                      item.status === 'Diterima' ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
+                      (item.status === 'Diterima' || item.status === 'Selesai') ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
                   )}>
                       {item.status}
                   </span>
@@ -162,7 +276,7 @@ export default function MonitoringDOPage() {
                 <div className="flex items-center justify-between pt-2 border-t border-[var(--border)]/50">
                   <div className="flex items-center gap-2 text-[10px] text-[var(--text-secondary)]">
                     <Clock size={12} className="text-blue-500" />
-                    <span className="font-medium italic">Estimasi: {item.date}</span>
+                    <span className="font-medium italic">Estimasi: {formatIndonesianDate(item.date)}</span>
                   </div>
                   <button className="p-1.5 hover:bg-blue-500/10 rounded-lg transition-colors">
                     <TrendingUp size={14} className="text-[var(--text-secondary)]" />

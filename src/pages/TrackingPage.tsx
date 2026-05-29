@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Truck, 
@@ -16,15 +16,85 @@ import {
   Plus,
   X
 } from 'lucide-react';
-import { dataTracking as initialData, upbjjList, paketList } from '../data';
+import { dataTracking as initialData, upbjjList, paketList, dataBahanAjar } from '../data';
 import { TrackingData } from '../types';
 import { cn } from '../lib/utils';
 
+export function formatIndonesianDate(dateStr: string): string {
+  if (!dateStr) return '';
+  try {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parts[0];
+      const monthNum = parseInt(parts[1], 10);
+      const day = parseInt(parts[2], 10);
+      const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      if (monthNum >= 1 && monthNum <= 12) {
+        return `${day} ${months[monthNum - 1]} ${year}`;
+      }
+    }
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+    return dateStr;
+  } catch (e) {
+    return dateStr;
+  }
+}
+
 export default function TrackingPage() {
   const [dataTracking, setDataTracking] = useState<Record<string, TrackingData>>(initialData);
+
+  useEffect(() => {
+    localStorage.setItem('sitta_tracking', JSON.stringify(dataTracking));
+  }, [dataTracking]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState<TrackingData | null>(null);
   const [isAddingMode, setIsAddingMode] = useState(false);
+
+  // States for adding tracking progress log
+  const [newProgressText, setNewProgressText] = useState('');
+  const [newProgressStatus, setNewProgressStatus] = useState('');
+
+  // States for form validation errors
+  const [formErrors, setFormErrors] = useState({
+    nim: '',
+    nama: '',
+    ekspedisi: '',
+    paket: ''
+  });
+
+  // Sync state when searching a DO
+  useEffect(() => {
+    if (searchResult) {
+      setNewProgressStatus(searchResult.status);
+    } else {
+      setNewProgressStatus('');
+      setNewProgressText('');
+    }
+  }, [searchResult]);
+
+  // Keyboard handler for Esc key to clear/reset search query and result
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        setSearchQuery('');
+        setSearchResult(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   // New DO Form State
   const [formData, setFormData] = useState({
@@ -43,15 +113,66 @@ export default function TrackingPage() {
     return [...new Set(upbjjList.flatMap(u => u.expeditions))];
   }, []);
 
+  const sortedDOs = useMemo(() => {
+    return (Object.values(dataTracking) as TrackingData[]).sort((a, b) => {
+      const matchA = a.nomorDO.match(/^DO(\d{4})-(\d+)$/);
+      const matchB = b.nomorDO.match(/^DO(\d{4})-(\d+)$/);
+      if (matchA && matchB) {
+        const yearA = parseInt(matchA[1], 10);
+        const yearB = parseInt(matchB[1], 10);
+        const seqA = parseInt(matchA[2], 10);
+        const seqB = parseInt(matchB[2], 10);
+        if (yearA !== yearB) {
+          return yearB - yearA;
+        }
+        return seqB - seqA;
+      }
+      const dateA = new Date(a.tanggalKirim).getTime();
+      const dateB = new Date(b.tanggalKirim).getTime();
+      if (dateA !== dateB) {
+        return dateB - dateA;
+      }
+      return b.nomorDO.localeCompare(a.nomorDO);
+    });
+  }, [dataTracking]);
+
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!searchQuery) {
       setSearchResult(null);
       return;
     }
-    const result = dataTracking[searchQuery.toUpperCase()];
-    setSearchResult(result || null);
-    if (!result) alert("Nomor DO tidak ditemukan!");
+    const trimQuery = searchQuery.trim();
+    const cleanQuery = trimQuery.toUpperCase().replace(/[\/\s_-]/g, '');
+    
+    // Check if we can find by nomorDO or nim
+    const found = (Object.values(dataTracking) as TrackingData[]).find(item => {
+      // 1. Direct nomorDO match
+      if (item.nomorDO.toUpperCase() === trimQuery.toUpperCase()) return true;
+      
+      // 2. Direct nim match
+      if (item.nim.toUpperCase() === trimQuery.toUpperCase() || item.nim === trimQuery) return true;
+      
+      // 3. Flexible nomorDO match
+      const normKey = item.nomorDO.toUpperCase().replace(/[\/\s_-]/g, '');
+      if (normKey === cleanQuery) return true;
+      
+      const qMatch = cleanQuery.match(/^DO(\d{4})(\d+)$/);
+      const tMatch = normKey.match(/^DO(\d{4})(\d+)$/);
+      if (qMatch && tMatch) {
+        const [_, qYear, qSeq] = qMatch;
+        const [__, tYear, tSeq] = tMatch;
+        return qYear === tYear && parseInt(qSeq, 10) === parseInt(tSeq, 10);
+      }
+
+      // 4. Loose NIM matching
+      if (item.nim.replace(/[\/\s_-]/g, '') === cleanQuery) return true;
+      
+      return false;
+    });
+
+    setSearchResult(found || null);
+    if (!found) alert("Nomor DO atau NIM tidak ditemukan!");
   };
 
   const generateDONumber = () => {
@@ -74,10 +195,55 @@ export default function TrackingPage() {
     return `DO${year}-${String(sequence).padStart(3, '0')}`;
   };
 
+  const validateForm = () => {
+    const errors = {
+      nim: '',
+      nama: '',
+      ekspedisi: '',
+      paket: ''
+    };
+    let isValid = true;
+
+    // NIM validation: digits only, length 7 - 15
+    if (!formData.nim) {
+      errors.nim = 'NIM wajib diisi';
+      isValid = false;
+    } else if (!/^\d+$/.test(formData.nim)) {
+      errors.nim = 'NIM harus berupa angka saja';
+      isValid = false;
+    } else if (formData.nim.length < 7 || formData.nim.length > 15) {
+      errors.nim = 'NIM harus berjumlah antara 7 hingga 15 digit';
+      isValid = false;
+    }
+
+    // Nama validation: minimum 3 characters
+    if (!formData.nama.trim()) {
+      errors.nama = 'Nama wajib diisi';
+      isValid = false;
+    } else if (formData.nama.trim().length < 3) {
+      errors.nama = 'Nama minimal memiliki 3 karakter';
+      isValid = false;
+    }
+
+    // Ekspedisi validation
+    if (!formData.ekspedisi) {
+      errors.ekspedisi = 'Pilih salah satu ekspedisi';
+      isValid = false;
+    }
+
+    // Paket validation
+    if (!formData.paket) {
+      errors.paket = 'Pilih paket bahan ajar';
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
+  };
+
   const handleAddDO = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.nim || !formData.nama || !formData.ekspedisi || !formData.paket) {
-      alert("Lengkapi semua data!");
+    if (!validateForm()) {
       return;
     }
 
@@ -93,7 +259,7 @@ export default function TrackingPage() {
       total: selectedPaket?.harga || 0,
       perjalanan: [
         {
-          waktu: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
+          waktu: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
           keterangan: "DO Berhasil Dibuat. Menunggu penjemputan kurir."
         }
       ]
@@ -116,6 +282,45 @@ export default function TrackingPage() {
       paket: '',
       tanggalKirim: new Date().toISOString().split('T')[0]
     });
+    setFormErrors({
+      nim: '',
+      nama: '',
+      ekspedisi: '',
+      paket: ''
+    });
+  };
+
+  const handleNewProgressStep = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProgressText.trim()) return;
+
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const formattedWaktu = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+    const updatedPerjalanan = [
+      ...searchResult!.perjalanan,
+      {
+        waktu: formattedWaktu,
+        keterangan: newProgressText.trim()
+      }
+    ];
+
+    const updatedStatus = newProgressStatus || searchResult!.status;
+
+    const updatedDO: TrackingData = {
+      ...searchResult!,
+      status: updatedStatus,
+      perjalanan: updatedPerjalanan
+    };
+
+    setDataTracking(prev => ({
+      ...prev,
+      [searchResult!.nomorDO]: updatedDO
+    }));
+
+    setSearchResult(updatedDO);
+    setNewProgressText('');
   };
 
   return (
@@ -150,7 +355,7 @@ export default function TrackingPage() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Masukkan Nomor DO..."
-          className="w-full pl-12 md:pl-16 pr-4 py-4 md:py-6 bg-[var(--bg-secondary)] border-2 border-[var(--border)] rounded-2xl md:rounded-[32px] text-lg md:text-xl font-bold tracking-tight outline-none focus:border-blue-500 shadow-xl md:shadow-2xl transition-all"
+          className="w-full pl-12 md:pl-16 pr-4 md:pr-48 py-4 md:py-6 bg-[var(--bg-secondary)] border-2 border-[var(--border)] rounded-2xl md:rounded-[32px] text-lg md:text-xl font-bold tracking-tight outline-none focus:border-blue-500 shadow-xl md:shadow-2xl transition-all"
         />
         <button 
           type="submit"
@@ -173,7 +378,9 @@ export default function TrackingPage() {
               <p className="text-xs text-[var(--text-secondary)]">Total {Object.keys(dataTracking).length} pengiriman tercatat</p>
             </div>
           </div>
-          <div className="overflow-x-auto">
+          
+          {/* Desktop View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] bg-[var(--bg-primary)]/50">
@@ -185,7 +392,7 @@ export default function TrackingPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
-                {(Object.values(dataTracking) as TrackingData[]).reverse().map((doItem) => (
+                {sortedDOs.map((doItem) => (
                   <tr key={doItem.nomorDO} className="hover:bg-blue-500/5 transition-colors">
                     <td className="px-8 py-5">
                       <span className="font-mono font-black text-blue-500">{doItem.nomorDO}</span>
@@ -223,6 +430,41 @@ export default function TrackingPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile/Tablet View */}
+          <div className="md:hidden p-4 space-y-3">
+            {sortedDOs.map((doItem) => (
+              <div 
+                key={doItem.nomorDO}
+                onClick={() => {
+                  setSearchQuery(doItem.nomorDO);
+                  setSearchResult(doItem);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="p-4 rounded-xl bg-[var(--bg-primary)]/40 border border-[var(--border)] flex justify-between items-center hover:border-blue-500/30 transition-all cursor-pointer"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-black text-blue-500 text-xs">{doItem.nomorDO}</span>
+                    <span className="text-[9px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[var(--text-secondary)] font-bold">{doItem.paket}</span>
+                  </div>
+                  <h4 className="font-bold text-[var(--text-primary)] text-sm">{doItem.nama}</h4>
+                  <p className="text-[10px] text-[var(--text-secondary)]">NIM: {doItem.nim}</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className={cn(
+                    "text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-wider",
+                    doItem.status === "Selesai" ? "bg-emerald-500/10 text-emerald-500" : "bg-blue-500/10 text-blue-500"
+                  )}>
+                    {doItem.status}
+                  </span>
+                  <div className="p-1.5 bg-blue-500/10 text-blue-500 rounded-lg">
+                    <ChevronRight size={14} />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </motion.div>
       )}
@@ -288,6 +530,16 @@ export default function TrackingPage() {
 
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-500">
+                        <Calendar size={20} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase">Tanggal Kirim</p>
+                        <p className="text-sm font-bold text-[var(--text-primary)]">{formatIndonesianDate(searchResult.tanggalKirim)}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-500">
                         <CreditCard size={20} />
                       </div>
                       <div>
@@ -339,6 +591,61 @@ export default function TrackingPage() {
                       </div>
                     </motion.div>
                   )).reverse()}
+                </div>
+
+                {/* Form Update Progress Perjalanan */}
+                <div className="mt-12 pt-8 border-t border-[var(--border)] space-y-4">
+                  <h4 className="text-sm font-black uppercase tracking-widest text-[var(--text-primary)] flex items-center gap-2">
+                    <Plus size={16} className="text-blue-500" />
+                    Tambah Progress Pengiriman
+                  </h4>
+                  <form onSubmit={handleNewProgressStep} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Status Selector */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Ubah Status DO (Opsional)</label>
+                        <select
+                          value={newProgressStatus}
+                          onChange={(e) => setNewProgressStatus(e.target.value)}
+                          className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl outline-none focus:ring-1 focus:ring-blue-500 text-sm font-bold text-[var(--text-primary)]"
+                        >
+                          <option value="Proses Packing">Proses Packing</option>
+                          <option value="Menunggu Penjemputan">Menunggu Penjemputan</option>
+                          <option value="Transit">Transit</option>
+                          <option value="Dalam Perjalanan">Dalam Perjalanan</option>
+                          <option value="Selesai">Selesai</option>
+                        </select>
+                      </div>
+                      {/* Local Time Info */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Waktu (Otomatis)</label>
+                        <div className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-mono text-[var(--text-secondary)] flex items-center gap-2 border border-[var(--border)]">
+                          <Clock size={12} className="text-blue-500 font-bold" />
+                          {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Keterangan */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase text-[var(--text-secondary)]">Keterangan Progress Baru</label>
+                      <input
+                        type="text"
+                        required
+                        value={newProgressText}
+                        onChange={(e) => setNewProgressText(e.target.value)}
+                        placeholder="Contoh: Paket sedang disortir di Hub Jakarta"
+                        className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl outline-none focus:ring-1 focus:ring-blue-500 text-sm font-bold text-[var(--text-primary)]"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-black rounded-xl text-xs uppercase tracking-widest transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+                    >
+                      Update Progress Perjalanan
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
@@ -396,9 +703,13 @@ export default function TrackingPage() {
                         value={formData.nim}
                         onChange={(e) => setFormData({...formData, nim: e.target.value})}
                         placeholder="Contoh: 041234567"
-                        className="w-full pl-12 pr-6 py-4 bg-[var(--bg-primary)] border border-[var(--border)] rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-mono font-bold"
+                        className={cn(
+                          "w-full pl-12 pr-6 py-4 bg-[var(--bg-primary)] border rounded-2xl outline-none focus:ring-2 transition-all font-mono font-bold",
+                          formErrors.nim ? "border-red-500 focus:ring-red-500" : "border-[var(--border)] focus:ring-emerald-500"
+                        )}
                       />
                     </div>
+                    {formErrors.nim && <p className="text-xs text-red-500 font-bold ml-1">{formErrors.nim}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -410,9 +721,13 @@ export default function TrackingPage() {
                         value={formData.nama}
                         onChange={(e) => setFormData({...formData, nama: e.target.value})}
                         placeholder="Nama Sesuai KTP"
-                        className="w-full pl-12 pr-6 py-4 bg-[var(--bg-primary)] border border-[var(--border)] rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold"
+                        className={cn(
+                          "w-full pl-12 pr-6 py-4 bg-[var(--bg-primary)] border rounded-2xl outline-none focus:ring-2 transition-all font-bold",
+                          formErrors.nama ? "border-red-500 focus:ring-red-500" : "border-[var(--border)] focus:ring-emerald-500"
+                        )}
                       />
                     </div>
+                    {formErrors.nama && <p className="text-xs text-red-500 font-bold ml-1">{formErrors.nama}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -423,12 +738,16 @@ export default function TrackingPage() {
                         required
                         value={formData.ekspedisi}
                         onChange={(e) => setFormData({...formData, ekspedisi: e.target.value})}
-                        className="w-full pl-12 pr-6 py-4 bg-[var(--bg-primary)] border border-[var(--border)] rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all appearance-none"
+                        className={cn(
+                          "w-full pl-12 pr-6 py-4 bg-[var(--bg-primary)] border  rounded-2xl outline-none focus:ring-2 transition-all appearance-none",
+                          formErrors.ekspedisi ? "border-red-500 focus:ring-red-500" : "border-[var(--border)] focus:ring-emerald-500"
+                        )}
                       >
                         <option value="">Pilih Logistik</option>
                         {allExpeditions.map(ex => <option key={ex} value={ex}>{ex}</option>)}
                       </select>
                     </div>
+                    {formErrors.ekspedisi && <p className="text-xs text-red-500 font-bold ml-1">{formErrors.ekspedisi}</p>}
                   </div>
                 </div>
 
@@ -442,7 +761,10 @@ export default function TrackingPage() {
                         required
                         value={formData.paket}
                         onChange={(e) => setFormData({...formData, paket: e.target.value})}
-                        className="w-full pl-12 pr-6 py-4 bg-[var(--bg-primary)] border border-[var(--border)] rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all appearance-none font-bold"
+                        className={cn(
+                          "w-full pl-12 pr-6 py-4 bg-[var(--bg-primary)] border rounded-2xl outline-none focus:ring-2 transition-all appearance-none font-bold",
+                          formErrors.paket ? "border-red-500 focus:ring-red-500" : "border-[var(--border)] focus:ring-emerald-500"
+                        )}
                       >
                         <option value="">Pilih Paket...</option>
                         {paketList.map(p => (
@@ -452,6 +774,7 @@ export default function TrackingPage() {
                         ))}
                       </select>
                     </div>
+                    {formErrors.paket && <p className="text-xs text-red-500 font-bold ml-1">{formErrors.paket}</p>}
                   </div>
 
                   {/* Dynamic Package Info */}
@@ -474,17 +797,21 @@ export default function TrackingPage() {
                           </div>
                         </div>
                         <ul className="grid grid-cols-1 gap-2">
-                          {selectedPaket.items.map(item => (
-                            <li key={item.kode} className="flex items-center gap-2 p-2 bg-white/50 dark:bg-black/20 rounded-xl border border-blue-500/5">
-                              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 font-mono text-[10px] font-bold">
-                                {item.kode.slice(0, 2)}
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-[8px] font-black text-blue-400 font-mono leading-none mb-0.5">{item.kode}</span>
-                                <span className="text-[11px] font-bold text-slate-600 leading-tight">{item.nama}</span>
-                              </div>
-                            </li>
-                          ))}
+                          {selectedPaket.isi.map(itemKode => {
+                            const itemDetail = dataBahanAjar.find(b => b.kode === itemKode);
+                            const itemNama = itemDetail ? itemDetail.judul : "Bahan Ajar UT";
+                            return (
+                              <li key={itemKode} className="flex items-center gap-2 p-2 bg-white/50 dark:bg-black/20 rounded-xl border border-blue-500/5">
+                                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 font-mono text-[10px] font-bold">
+                                  {itemKode.slice(0, 2)}
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-[8px] font-black text-blue-400 font-mono leading-none mb-0.5">{itemKode}</span>
+                                  <span className="text-[11px] font-bold text-slate-600 leading-tight">{itemNama}</span>
+                                </div>
+                              </li>
+                            );
+                          })}
                         </ul>
                       </motion.div>
                     )}

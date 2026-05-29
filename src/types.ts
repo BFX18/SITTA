@@ -8,18 +8,23 @@ export interface User {
 }
 
 export interface BahanAjar {
-  kodeLokasi: string;
-  kodeBarang: string;
-  namaBarang: string;
-  jenisBarang: string;
-  edisi: string;
-  stok: number;
-  cover: string;
+  kode: string;
+  judul: string;
   kategori: string;
   upbjj: string;
-  safety: number;
+  lokasiRak: string;
   harga: number;
+  qty: number;
+  safety: number;
   catatanHTML: string;
+  cover?: string;
+  jenisBarang?: string;
+  edisi?: string;
+  // Aliases for compatibility
+  kodeBarang?: string;
+  namaBarang?: string;
+  stok?: number;
+  kodeLokasi?: string;
 }
 
 export interface UPBJJData {
@@ -31,7 +36,8 @@ export interface UPBJJData {
 export interface PaketBahanAjar {
   kode: string;
   nama: string;
-  items: { kode: string; nama: string }[];
+  isi: string[];
+  items?: { kode: string; nama: string }[];
   harga: number;
 }
 
